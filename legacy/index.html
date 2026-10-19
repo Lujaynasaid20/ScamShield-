@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f2">
+  <meta name="description" content="Check suspicious messages for scam signals before you reply or click.">
+  <title>ScamShield AI | Pause. Check. Protect.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #17342f;
+      --muted: #71817b;
+      --paper: #f5f7f2;
+      --line: #e3e9e1;
+      --green: #176b55;
+      --green-dark: #11523f;
+      --mint: #dff3e9;
+      --lime: #d2f36b;
+      --coral: #f27d64;
+      --gold: #f5c95d;
+      --white: #fff;
+      --font-body: "DM Sans", sans-serif;
+      --font-display: "Space Grotesk", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--font-body); }
+    button, input, textarea { font: inherit; }
+    h1, h2, h3, h4, .brand-name { font-family: var(--font-display); letter-spacing: 0; }
+    .app-shell { min-height: 100vh; display: block; }
+    .sidebar { background: #fff; border-right: 1px solid var(--line); padding: 26px 18px; display: flex; flex-direction: column; gap: 34px; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px; color: var(--ink); text-decoration: none; }
+    .brand-mark { width: 42px; height: 42px; border-radius: 15px; display: grid; place-items: center; color: var(--green-dark); background: var(--lime); font-size: 21px; transform: rotate(-5deg); }
+    .brand-name { font-size: 18px; font-weight: 700; line-height: 1.05; }
+    .brand-sub { color: var(--muted); font-size: 10px; letter-spacing: 0; margin-top: 3px; }
+    .nav-label { color: #9aa69f; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 0 12px; margin: 0 0 9px; }
+    .side-nav { display: grid; gap: 5px; }
+    .nav-link-app { border: 0; border-radius: 14px; color: #61736b; width: 100%; padding: 11px 13px; text-align: left; display: flex; align-items: center; gap: 12px; font-weight: 600; background: transparent; transition: background .2s, color .2s, transform .2s; }
+    .nav-link-app i { font-size: 17px; width: 19px; text-align: center; }
+    .nav-link-app:hover { background: #f2f7f3; color: var(--green); transform: translateX(2px); }
+    .nav-link-app.active { background: var(--mint); color: var(--green-dark); }
+    .sidebar-bottom { margin-top: auto; }
+    .privacy-note { border: 1px solid #e2eae1; border-radius: 20px; padding: 16px; background: #f8faf6; }
+    .privacy-icon { width: 34px; height: 34px; display: grid; place-items: center; background: var(--lime); color: var(--green-dark); border-radius: 50%; margin-bottom: 11px; }
+    .privacy-note strong { display: block; font-size: 12px; margin-bottom: 4px; }
+    .privacy-note p { color: var(--muted); font-size: 11px; line-height: 1.5; margin: 0; }
+    .main-area { min-width: 0; max-width: 1440px; margin: 0 auto; padding: 0 38px 45px; }
+    .topbar { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
+    .topbar-brand { order: 1; display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; flex: 0 0 auto; }
+    .topbar-brand .brand-mark { width: 38px; height: 38px; font-size: 18px; }
+    .topbar-brand .brand-name { font-size: 16px; }
+    .top-actions { order: 3; display: flex; align-items: center; gap: 12px; }
+    .top-nav { order: 2; display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .top-nav-link { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 10px; padding: 9px 10px; background: transparent; color: #61736b; white-space: nowrap; font-size: 11px; font-weight: 600; }
+    .top-nav-link i { font-size: 14px; }
+    .top-nav-link:hover, .top-nav-link.active { background: var(--mint); color: var(--green-dark); }
+    .top-auth-actions { display: flex; align-items: center; gap: 8px; }
+    .top-auth-actions .btn.menu-toggle { padding: 5px 11px; font-size: 17px; line-height: 1; }
+    .app-menu { min-width: 220px; padding: 7px; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 30px #17342f1f; }
+    .app-menu .dropdown-item { display: flex; align-items: center; gap: 9px; border-radius: 10px; padding: 9px 11px; color: #61736b; font-size: 12px; font-weight: 600; }
+    .app-menu .dropdown-item i { font-size: 15px; }
+    .app-menu .dropdown-item:hover, .app-menu .dropdown-item.active { background: var(--mint); color: var(--green-dark); }
+    .top-auth-actions .btn { border-radius: 22px; padding: 8px 13px; font-size: 11px; font-weight: 700; }
+    .auth-layout { max-width: 940px; margin: 28px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 17px; align-items: stretch; }
+    .auth-layout .auth-panel { order: 1; }
+    .auth-layout.registering .auth-panel { order: 0; }
+    .auth-layout.registering .auth-story { order: 2; }
+    .auth-story { min-height: 420px; border-radius: 26px; padding: 0; background: #030b24; display: grid; place-items: center; overflow: hidden; }
+    .auth-story-image { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .auth-story h2 { max-width: 380px; font-size: 33px; line-height: 1.1; font-weight: 700; margin-bottom: 12px; }
+    .auth-story p { max-width: 360px; color: #c4ddd3; font-size: 13px; }
+    .auth-benefit { color: #d4e8df; font-size: 11px; display: flex; gap: 8px; align-items: center; }
+    .auth-benefit i { color: var(--lime); }
+    .auth-panel { border: 1px solid var(--line); border-radius: 26px; background: white; padding: 28px; }
+    .auth-panel h2 { font-size: 24px; font-weight: 700; margin: 2px 0 5px; }
+    .auth-panel > p { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+    .auth-mode-switch { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 18px; background: #f1f5f0; border-radius: 22px; }
+    .auth-mode-switch button { border: 0; border-radius: 19px; background: transparent; color: var(--muted); padding: 8px; font-size: 11px; font-weight: 700; }
+    .auth-mode-switch button.active { background: white; color: var(--green-dark); box-shadow: 0 2px 8px #17342f12; }
+    .auth-form .form-label { margin-bottom: 5px; }
+    .auth-form .form-control { margin-bottom: 13px; }
+    .auth-form .btn-green { width: 100%; padding: 11px; }
+    .auth-note { margin-top: 14px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .auth-note i { color: var(--green); }
+    #page-auth .page-head { justify-content: center; text-align: center; }
+    .auth-story { text-align: center; align-items: center; }
+    .auth-story .brand-mark { margin-left: auto; margin-right: auto; }
+    .auth-story h2, .auth-story p { margin-left: auto; margin-right: auto; }
+    .auth-benefit { justify-content: center; }
+    .auth-panel { text-align: center; }
+    .auth-form { text-align: left; }
+    .auth-form .form-label { display: block; text-align: center; }
+    .auth-note { text-align: center; }
+    .lang-switch { display: flex; padding: 4px; border: 1px solid var(--line); border-radius: 30px; background: white; }
+    .lang-switch button { border: 0; border-radius: 24px; padding: 5px 11px; font-size: 11px; font-weight: 700; color: var(--muted); background: transparent; }
+    .lang-switch button.active { background: var(--ink); color: white; }
+    .avatar { display: grid; place-items: center; width: 37px; height: 37px; border-radius: 50%; background: #f8d9c8; color: #8d4d35; font-size: 13px; font-weight: 700; }
+    .page { display: none; animation: rise .35s ease both; }
+    .page.active { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .page-head { padding: 31px 0 23px; display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 7px; color: var(--green); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 9px; }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); box-shadow: 0 0 0 4px #fce9e3; }
+    .page-head h1 { font-size: clamp(25px, 3vw, 36px); line-height: 1.12; font-weight: 700; margin: 0; }
+    .page-head p { color: var(--muted); margin: 7px 0 0; font-size: 13px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(255px, .65fr); background: var(--green-dark); border-radius: 28px; color: white; overflow: hidden; min-height: 215px; position: relative; }
+    .hero-copy { padding: 30px 33px; z-index: 1; }
+    .hero-kicker { color: var(--lime); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; }
+    .hero h2 { font-size: clamp(26px, 3vw, 39px); line-height: 1.05; font-weight: 700; max-width: 430px; margin: 0 0 13px; }
+    .hero p { color: #c4ddd3; max-width: 420px; font-size: 13px; margin: 0 0 19px; }
+    .btn-lime { background: var(--lime); color: var(--ink); border: 0; border-radius: 30px; padding: 10px 17px; font-weight: 700; font-size: 12px; transition: transform .2s, background .2s; }
+    .btn-lime:hover { background: #e1ff8d; color: var(--ink); transform: translateY(-2px); }
+    .hero-art { min-height: 215px; position: relative; overflow: hidden; display: grid; place-items: center; }
+    .hero-art:before { content: ""; position: absolute; width: 230px; aspect-ratio: 1; border: 1px solid #ffffff30; border-radius: 50%; }
+    .hero-art:after { content: ""; position: absolute; width: 165px; aspect-ratio: 1; border: 1px dashed #ffffff45; border-radius: 50%; }
+    .shield-orb { width: 100px; height: 112px; z-index: 1; display: grid; place-items: center; color: var(--green-dark); background: var(--lime); clip-path: polygon(50% 0, 94% 16%, 91% 62%, 77% 82%, 50% 100%, 23% 82%, 9% 62%, 6% 16%); font-size: 41px; filter: drop-shadow(0 12px 20px #061f1c55); animation: float 4s ease-in-out infinite; }
+    @keyframes float { 50% { transform: translateY(-6px) rotate(2deg); } }
+    .orbit-tag { z-index: 2; position: absolute; padding: 7px 11px; color: var(--ink); background: white; border-radius: 20px; font-size: 10px; font-weight: 700; box-shadow: 0 8px 18px #0c292522; }
+    .orbit-tag.one { top: 35px; right: 20px; }.orbit-tag.two { bottom: 33px; left: 8px; background: #ffdbcf; }
+    .home-grid { display: grid; grid-template-columns: minmax(0, 600px); gap: 18px; margin-top: 19px; }
+    .surface { border: 1px solid var(--line); border-radius: 23px; background: white; padding: 22px; }
+    .surface-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .surface-title h3 { margin: 0; font-size: 16px; font-weight: 700; }
+    .surface-title span { color: var(--muted); font-size: 11px; }
+    .message-input { width: 100%; min-height: 112px; resize: vertical; border-radius: 17px; border: 1px solid #dfe8df; outline: none; padding: 14px 15px; font-size: 13px; color: var(--ink); background: #fbfcfa; transition: border .2s, box-shadow .2s; }
+    .message-input:focus { border-color: #74b69e; box-shadow: 0 0 0 4px #dff3e9; }
+    .input-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 11px; }
+    .input-help { color: var(--muted); font-size: 10px; }
+    .btn-green { border: 0; border-radius: 30px; background: var(--green); color: white; padding: 10px 16px; font-size: 12px; font-weight: 700; transition: transform .2s, background .2s; }
+    .btn-green:hover { background: var(--green-dark); color: white; transform: translateY(-1px); }
+    .how-list { display: grid; gap: 13px; }
+    .how-row { display: flex; align-items: flex-start; gap: 11px; }
+    .how-number { flex: 0 0 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #f1f6ed; color: var(--green); font-size: 11px; font-weight: 700; }
+    .how-row strong { display: block; font-size: 12px; margin: 1px 0 2px; }
+    .how-row small { display: block; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .section-row { display: flex; align-items: center; justify-content: space-between; margin: 24px 0 12px; }
+    .section-row h3 { font-size: 15px; margin: 0; font-weight: 700; }
+    .text-button { border: 0; background: transparent; color: var(--green); font-size: 11px; font-weight: 700; }
+    .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .feature { min-height: 112px; border-radius: 19px; padding: 15px; background: white; border: 1px solid var(--line); }
+    .feature-icon { height: 33px; width: 33px; display: grid; place-items: center; border-radius: 12px; font-size: 15px; margin-bottom: 10px; }
+    .feature:nth-child(1) .feature-icon { background: #e2f4e8; color: #1a7358; }.feature:nth-child(2) .feature-icon { background: #fff0d2; color: #986a12; }.feature:nth-child(3) .feature-icon { background: #ffe5de; color: #bc5943; }.feature:nth-child(4) .feature-icon { background: #e7e8fa; color: #59569a; }
+    .feature strong { display: block; font-size: 11px; }.feature small { color: var(--muted); font-size: 9px; }
+    .analyzer-wrap { max-width: 800px; margin: 24px auto; }
+    .analysis-intro { text-align: center; margin: 0 auto 20px; max-width: 560px; }
+    .analysis-intro h2 { font-size: 23px; font-weight: 700; margin-bottom: 7px; }.analysis-intro p { color: var(--muted); font-size: 12px; }
+    .checker-grid { max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 17px; align-items: start; }
+    .checker-heading { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+    .checker-heading i { color: var(--green); }
+    @media (max-width: 760px) { .checker-grid { grid-template-columns: 1fr; } }
+    .analyzer-box { background: white; border: 1px solid var(--line); border-radius: 27px; padding: 25px; }
+    .analyzer-box .message-input { min-height: 220px; }
+    .live-analysis { margin-top: 12px; padding: 11px 13px; border-left: 3px solid var(--risk-color, var(--green)); border-radius: 0 10px 10px 0; background: #f7faf5; color: var(--ink); font-size: 12px; font-weight: 700; }
+    .tool-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; color: var(--muted); font-size: 11px; margin-top: 10px; }
+    .example-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; align-items: center; color: var(--muted); font-size: 10px; }
+    .example-chip { border: 1px solid var(--line); color: #586b63; border-radius: 20px; background: white; padding: 6px 10px; font-size: 10px; }
+    .example-chip:hover { border-color: var(--green); color: var(--green); }
+    .trust-strip { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 17px; color: var(--muted); font-size: 10px; }.trust-strip i { color: var(--green); margin-right: 4px; }
+    .result-wrap { max-width: 920px; margin: 20px auto 0; }
+    .result-banner { background: white; border: 1px solid var(--line); border-radius: 25px; padding: 22px 24px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px; }
+    .risk-gauge { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--risk-color) var(--risk-deg), #e8eee7 0); position: relative; }
+    .risk-gauge:before { content: ""; position: absolute; inset: 6px; background: white; border-radius: 50%; }.risk-score { position: relative; font: 700 21px var(--font-display); }.risk-copy .eyebrow { margin: 0 0 5px; color: var(--risk-color); }.risk-copy h2 { font-size: 22px; font-weight: 700; margin: 0; }.risk-copy p { color: var(--muted); font-size: 11px; margin: 4px 0 0; }
+    .result-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: end; }
+    .btn-outline-app { border: 1px solid var(--line); color: var(--ink); background: white; border-radius: 24px; padding: 9px 12px; font-size: 10px; font-weight: 700; }.btn-outline-app:hover { border-color: var(--green); color: var(--green); }
+    .result-columns { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(250px, .85fr); gap: 15px; margin-top: 15px; }
+    .result-checks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; margin-top: 15px; }
+    .check-list, .history-list { display: grid; gap: 10px; }
+    .check-entry { min-width: 0; padding-bottom: 9px; border-bottom: 1px solid #eef1ec; overflow-wrap: anywhere; }
+    .check-entry:last-child { padding-bottom: 0; border-bottom: 0; }
+    .check-entry strong, .check-entry small { display: block; }
+    .check-entry strong { font-size: 11px; }
+    .check-entry small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .history-match { margin-top: 12px; padding: 10px 13px; border-radius: 10px; background: #fff7e5; color: #70591c; font-size: 11px; }
+    .history-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #eef1ec; }
+    .history-row:last-child { border-bottom: 0; }
+    .history-row strong, .history-row small { display: block; }
+    .history-row strong { font-size: 12px; }
+    .history-row small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .history-risk { font-size: 10px; font-weight: 700; color: var(--risk-color, var(--green)); white-space: nowrap; }
+    .awareness-list { display: grid; gap: 0; max-width: 850px; margin: 0 auto; }
+    .awareness-list article { padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .awareness-list article:last-child { border-bottom: 0; }
+    .awareness-list h2 { margin: 0 0 5px; font-size: 16px; }
+    .awareness-list p { margin: 0; color: var(--muted); font-size: 12px; }
+    .profile-details { display: grid; gap: 15px; max-width: 650px; margin: 0 auto; }
+    .profile-details > div { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 12px; }
+    .profile-details > div span { color: var(--muted); }
+    .profile-details > div strong { overflow-wrap: anywhere; text-align: right; }
+    .profile-details button { justify-self: start; }
+    .signal-list { display: grid; gap: 12px; }.signal-row { display: flex; gap: 11px; align-items: flex-start; }.signal-check { width: 26px; height: 26px; border-radius: 50%; flex: 0 0 26px; display: grid; place-items: center; background: #fff0d2; color: #a27218; font-size: 12px; }.signal-check.safe { background: var(--mint); color: var(--green); }.signal-row strong { font-size: 11px; display: block; }.signal-row p { color: var(--muted); font-size: 10px; margin: 2px 0 0; }
+    .quoted-message { border-left: 3px solid var(--lime); background: #f7faf5; padding: 11px 13px; border-radius: 0 13px 13px 0; color: #566960; font-size: 11px; max-height: 105px; overflow: auto; white-space: pre-wrap; }
+    .advice-box { border-radius: 16px; padding: 14px; background: #fff7e5; color: #70591c; margin-top: 13px; font-size: 10px; }.advice-box strong { display: block; margin-bottom: 4px; font-size: 11px; }
+    .dashboard-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 15px; }
+    .metric { background: white; border: 1px solid var(--line); border-radius: 20px; padding: 17px; }.metric-label { color: var(--muted); font-size: 10px; }.metric-value { display: block; font: 700 26px var(--font-display); margin: 8px 0 2px; }.metric-note { color: var(--green); font-size: 9px; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(230px, .8fr); gap: 15px; }.chart-bars { height: 150px; display: flex; align-items: end; justify-content: space-around; gap: 12px; border-bottom: 1px solid var(--line); padding: 12px 5px 0; }.chart-group { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: end; gap: 7px; flex: 1; }.bar { width: min(28px, 70%); min-height: 6px; border-radius: 10px 10px 4px 4px; background: #8dc6a4; transition: height .5s; }.bar:nth-child(2) { background: var(--coral); }.chart-group small { color: var(--muted); font-size: 9px; }
+    .activity-list { display: grid; gap: 10px; }.activity-item { display: grid; grid-template-columns: 29px 1fr auto; gap: 9px; align-items: center; border-bottom: 1px solid #eef1ec; padding-bottom: 9px; }.activity-item:last-child { border: 0; padding: 0; }.activity-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #fff0d2; color: #9b741c; font-size: 12px; }.activity-item strong { display: block; font-size: 10px; }.activity-item small { color: var(--muted); font-size: 9px; }.status-pill { border-radius: 20px; padding: 4px 8px; background: #ffe3dc; color: #a84e3b; font-size: 9px; font-weight: 700; white-space: nowrap; }
+    .modal-content { border: 0; border-radius: 22px; overflow: hidden; }.modal-header { border: 0; padding: 22px 23px 8px; }.modal-body { padding: 10px 23px 22px; }.form-label { font-size: 11px; font-weight: 700; }.form-control, .form-select { border-color: var(--line); border-radius: 12px; padding: 10px 12px; font-size: 12px; }.form-control:focus, .form-select:focus { border-color: #74b69e; box-shadow: 0 0 0 3px #dff3e9; }
+    .mobile-brand { display: none; }
+    .toast-container { z-index: 1080; }
+    @media (max-width: 1050px) { .app-shell { grid-template-columns: 215px minmax(0,1fr); }.main-area { padding-left: 25px; padding-right: 25px; }.feature-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) {
+      .app-shell { display: block; }.main-area { padding: 0 17px 28px; }.topbar { min-height: 65px; }.top-actions { gap: 7px; }.top-auth-actions { gap: 5px; }.top-auth-actions .btn { padding: 7px 9px; font-size: 10px; }.avatar { width: 32px; height: 32px; }.page-head { padding: 23px 0 17px; }.page-head h1 { font-size: 27px; }.hero { grid-template-columns: 1fr; border-radius: 23px; min-height: 0; }.hero-copy { padding: 24px 22px; }.hero h2 { font-size: 31px; }.hero-art { display: none; }.home-grid, .result-columns, .result-checks, .dashboard-grid { grid-template-columns: 1fr; }.home-grid { gap: 12px; margin-top: 13px; }.surface { padding: 17px; border-radius: 20px; }.feature-grid { gap: 9px; }.feature { min-height: 100px; padding: 12px; }.analyzer-wrap { margin-top: 18px; }.analysis-intro { margin-bottom: 13px; }.analyzer-box { padding: 16px; border-radius: 22px; }.analyzer-box .message-input { min-height: 190px; }.tool-row { align-items: start; }.result-banner { grid-template-columns: auto 1fr; padding: 17px; gap: 12px; }.risk-gauge { width: 64px; height: 64px; }.risk-copy h2 { font-size: 18px; }.result-actions { grid-column: 1/-1; justify-content: start; }.history-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }.history-row .history-risk { grid-column: 1; }.history-row button { grid-column: 2; grid-row: 1 / span 2; }.dashboard-metrics { grid-template-columns: repeat(2, 1fr); gap: 9px; }.metric { padding: 14px; }.metric-value { font-size: 23px; }.page-head.dashboard-head { align-items: flex-start; }.page-head.dashboard-head .btn-green { padding: 9px 11px; white-space: nowrap; }.auth-layout { grid-template-columns: 1fr; margin: 16px auto; gap: 12px; }.auth-story { display: none; }.auth-panel { padding: 21px; border-radius: 22px; }.feature-menu { width: min(255px, calc(100vw - 24px)); }
+    }
+    @media (max-width: 760px) { .auth-story { display: grid; min-height: 0; height: 210px; } }
+    @media (max-width: 390px) { .main-area { padding-left: 12px; padding-right: 12px; }.input-footer { align-items: flex-start; }.input-help { max-width: 150px; }.lang-switch button { padding: 5px 8px; }.topbar { flex-wrap: wrap; padding: 8px 0; }.top-actions { flex: 1 0 100%; justify-content: space-between; gap: 5px; }.top-auth-actions .btn { padding: 6px 8px; font-size: 9px; }.feature strong { font-size: 10px; } }
+    @media (max-width: 760px) { .topbar { flex-wrap: wrap; padding-bottom: 0; }.top-actions { flex: 0 0 auto; margin-left: auto; }.top-nav { order: 3; flex: 1 0 100%; justify-content: flex-start; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }.top-nav-link { padding: 8px 9px; } }
+    @media (max-width: 390px) { .top-actions { flex: 0 0 auto; justify-content: flex-end; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <main class="main-area">
+      <header class="topbar" id="app-header" hidden>
+        <a class="topbar-brand" href="#home" data-go="home" aria-label="ScamShield home"><span class="brand-mark"><i class="bi bi-shield-check"></i></span><span class="brand-name">ScamShield</span></a>
+        <div class="top-actions">
+          <div class="top-auth-actions" id="auth-actions"><button class="btn btn-outline-app" type="button" data-role="user" data-view="profile"><i class="bi bi-person me-1"></i><span data-i18n="navProfile">Profile</span></button><div class="dropdown"><button class="btn btn-outline-app menu-toggle" id="menu-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu"><i class="bi bi-list"></i></button><div class="dropdown-menu dropdown-menu-end app-menu" aria-labelledby="menu-button"><button class="dropdown-item" type="button" data-role="user" data-view="url-scanner"><i class="bi bi-shield-check"></i><span data-i18n="checkerTitle">URL &amp; phone checker</span></button><button class="dropdown-item" type="button" data-role="user" data-view="history"><i class="bi bi-clock-history"></i><span data-i18n="navHistory">Scam history</span></button><button class="dropdown-item" type="button" data-role="user" data-view="awareness"><i class="bi bi-book"></i><span data-i18n="navAwareness">Scam awareness</span></button><button class="dropdown-item" type="button" data-role="user" data-view="results"><i class="bi bi-lightbulb"></i><span data-i18n="navExplain">Explainable AI</span></button><hr class="dropdown-divider" data-role="user"><button class="dropdown-item" type="button" id="logout-button" hidden><i class="bi bi-box-arrow-right"></i><span data-i18n="logout">Log out</span></button></div></div></div>
+        </div>
+        <nav class="top-nav" id="feature-navigation" aria-label="Main navigation" hidden>
+          <button class="top-nav-link active" type="button" data-role="user" data-view="home"><i class="bi bi-house-door"></i><span data-i18n="navHome">Home</span></button>
+          <button class="top-nav-link" type="button" data-role="user" data-view="analyzer"><i class="bi bi-activity"></i><span data-i18n="navAnalyzer">Message analyzer</span></button>
+          <button class="top-nav-link" type="button" data-role="admin" data-view="dashboard"><i class="bi bi-grid-1x2"></i><span data-i18n="navDashboard">Admin dashboard</span></button>
+          <button class="top-nav-link" type="button" data-role="admin" data-view="admin-reports"><i class="bi bi-flag"></i><span data-i18n="adminReportsTitle">Review reports</span></button>
+          <button class="top-nav-link" type="button" data-role="admin" data-view="scam-database"><i class="bi bi-collection"></i><span data-i18n="scamDatabaseTitle">Scam database</span></button>
+          <button class="top-nav-link" type="button" data-role="admin" data-view="admin-users"><i class="bi bi-people"></i><span data-i18n="usersTitle">Users</span></button>
+          <button class="top-nav-link" type="button" data-role="admin" data-view="admin-insights"><i class="bi bi-graph-up"></i><span data-i18n="insightsTitle">Trends & performance</span></button>
+          <button class="top-nav-link" type="button" data-role="user" data-report-open><i class="bi bi-flag"></i><span data-i18n="navReport">Report a scam</span></button>
+        </nav>
+      </header>
+
+      <section class="page active" id="page-auth" aria-labelledby="auth-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="accountAccess">Account access</span></div><h1 id="auth-title" data-i18n="authPageTitle">Join ScamShield</h1><p data-i18n="authPageSub">Create an account to keep your safety tools close.</p></div></div>
+        <div class="auth-layout">
+          <section class="auth-story"><img class="auth-story-image" src="stock-vector-abstract-background-digital-concept-cybersecurity-shield-anti-virus-malware-spy-protection-cyber-2232743209.jpg" alt="Cybersecurity shield protection illustration"></section>
+          <section class="auth-panel">
+            <div class="auth-mode-switch" role="tablist" aria-label="Account access"><button type="button" class="active" data-auth-mode="login" role="tab" aria-selected="true" data-i18n="login">Log in</button><button type="button" data-auth-mode="register" role="tab" aria-selected="false" data-i18n="register">Register</button><button type="button" data-auth-mode="admin" role="tab" aria-selected="false" data-i18n="adminTab">Admin</button></div>
+            <h2 id="auth-form-title" data-i18n="welcomeBack">Welcome back</h2><p id="auth-form-subtitle" data-i18n="loginSubtitle">Log in to your ScamShield account.</p>
+            <form class="auth-form" id="auth-form">
+              <div id="auth-name-field" hidden><label class="form-label" for="auth-name" data-i18n="fullName">Full name</label><input class="form-control" id="auth-name" autocomplete="name" minlength="2" data-i18n-placeholder="namePlaceholder" placeholder="Your name"></div>
+              <label class="form-label" for="auth-email" data-i18n="emailAddress">Email address</label><input class="form-control" id="auth-email" type="email" autocomplete="email" data-i18n-placeholder="emailPlaceholder" placeholder="you@example.com" required>
+              <label class="form-label" for="auth-password" data-i18n="password">Password</label><input class="form-control" id="auth-password" type="password" autocomplete="current-password" minlength="8" data-i18n-placeholder="passwordPlaceholder" placeholder="At least 8 characters" required>
+              <div id="auth-confirm-field" hidden><label class="form-label" for="auth-confirm" data-i18n="confirmPassword">Confirm password</label><input class="form-control" id="auth-confirm" type="password" autocomplete="new-password" minlength="8" data-i18n-placeholder="confirmPlaceholder" placeholder="Enter your password again"></div>
+              <button class="btn btn-green mt-1" id="auth-submit" type="submit" data-i18n="login">Log in</button>
+            </form>
+            <p class="auth-note"><i class="bi bi-info-circle me-1"></i><span data-i18n="authDemoNote">Accounts are stored in this PostgreSQL database.</span></p>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-home" aria-labelledby="home-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="saferInbox">A safer inbox starts here</span></div><h1 id="home-title" data-i18n="homeTitle">Pause. Check. Protect.</h1><p data-i18n="homeSub">A second opinion for the messages that don't feel right.</p></div></div>
+        <section class="hero">
+          <div class="hero-copy"><div class="hero-kicker"><i class="bi bi-stars me-1"></i><span data-i18n="heroKicker">Your personal scam spotter</span></div><h2 data-i18n="heroTitle">Trust your gut.<br>Verify the message.</h2><p data-i18n="heroBody">Spot pressure tactics, suspicious links, and requests for money before they catch you off guard.</p><button class="btn btn-lime" data-go="analyzer"><span data-i18n="checkMessage">Check a message</span><i class="bi bi-arrow-up-right ms-2"></i></button></div>
+          <div class="hero-art" aria-hidden="true"><span class="shield-orb"><i class="bi bi-shield-check"></i></span><span class="orbit-tag one"><i class="bi bi-link-45deg me-1"></i>Link check</span><span class="orbit-tag two"><i class="bi bi-exclamation-circle me-1"></i>Risk signals</span></div>
+        </section>
+        <div class="home-grid">
+          <section class="surface">
+            <div class="surface-title"><h3 data-i18n="howItWorks">How it works</h3></div>
+            <div class="how-list">
+              <div class="how-row"><span class="how-number">01</span><div><strong data-i18n="stepOne">Paste the message</strong><small data-i18n="stepOneBody">SMS, email, social post, or chat.</small></div></div>
+              <div class="how-row"><span class="how-number">02</span><div><strong data-i18n="stepTwo">Review the signals</strong><small data-i18n="stepTwoBody">See what looks risky and why.</small></div></div>
+              <div class="how-row"><span class="how-number">03</span><div><strong data-i18n="stepThree">Choose your next step</strong><small data-i18n="stepThreeBody">Get practical guidance, not just a score.</small></div></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-analyzer" aria-labelledby="analyzer-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="checkBefore">Check before you click</span></div><h1 id="analyzer-title" data-i18n="analyzerTitle">Message analyzer</h1><p data-i18n="analyzerSub">Paste the full message for a clearer risk assessment.</p></div></div>
+        <div class="analyzer-wrap">
+          <div class="analysis-intro"><h2 data-i18n="whatLooksOff">Let's see what looks off.</h2><p data-i18n="analyzerIntro">We look for pressure, payment requests, suspicious links, and personal information requests.</p></div>
+          <section class="analyzer-box">
+            <label class="form-label" for="analyzer-message" data-i18n="messageLabel">Suspicious message</label>
+            <textarea class="message-input" id="analyzer-message" maxlength="5000" data-i18n-placeholder="pasteHere" placeholder="Paste your suspicious message here"></textarea>
+            <div class="live-analysis" id="live-analysis" role="status" aria-live="polite" hidden></div>
+            <div class="tool-row"><span><i class="bi bi-lock me-1"></i><span id="analysis-disclosure" data-i18n="localAnalysis">Demo analysis happens locally in this browser.</span></span><span id="char-count">0 / 5000</span></div>
+            <div class="d-flex justify-content-end mt-3"><button class="btn btn-green" data-analyze="analyzer-message"><i class="bi bi-shield-check me-2"></i><span data-i18n="analyzeMessage">Analyze message</span></button></div>
+          </section>
+          <div class="example-chips"><span data-i18n="tryExample">Try an example:</span><button class="example-chip" data-example="urgent"><span data-i18n="exampleUrgent">Urgent bank alert</span></button><button class="example-chip" data-example="prize"><span data-i18n="examplePrize">Prize message</span></button><button class="example-chip" data-example="safe"><span data-i18n="exampleSafe">Normal delivery update</span></button></div>
+          <div class="trust-strip"><span><i class="bi bi-check-circle"></i><span data-i18n="noAccount">No account needed</span></span><span><i class="bi bi-check-circle"></i><span data-i18n="historyStored">Cases saved in this browser</span></span><span><i class="bi bi-check-circle"></i><span data-i18n="explainable">Every flag explained</span></span></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-url-scanner" aria-labelledby="url-page-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="checkerTitle">URL &amp; phone checker</span></div><h1 id="url-page-title" data-i18n="checkerTitle">URL &amp; phone checker</h1><p data-i18n="checkerHint">Check a link or a phone number for common warning signs.</p></div></div>
+        <div class="analyzer-wrap checker-grid"><section class="analyzer-box"><h2 class="checker-heading"><i class="bi bi-link-45deg"></i><span data-i18n="urlScanTitle">URL scanner</span></h2><form id="url-form"><label class="form-label" for="url-input" data-i18n="urlInputLabel">Link to check</label><input class="form-control" id="url-input" type="text" inputmode="url" autocomplete="url" required><div class="d-flex justify-content-end mt-3"><button class="btn btn-green" type="submit" data-i18n="scanUrl">Scan URL</button></div></form><div class="check-list mt-3" id="single-url-result" aria-live="polite"></div><p class="input-help mt-3" data-i18n="localUrlCaveat">Checks run locally. This does not query live threat-intelligence services.</p></section><section class="analyzer-box"><h2 class="checker-heading"><i class="bi bi-telephone"></i><span data-i18n="phoneCheckTitle">Phone number checker</span></h2><form id="phone-form"><label class="form-label" for="phone-input" data-i18n="phoneInputLabel">Phone number</label><input class="form-control" id="phone-input" type="tel" autocomplete="tel" required><div class="d-flex justify-content-end mt-3"><button class="btn btn-green" type="submit" data-i18n="checkPhone">Check number</button></div></form><div class="check-list mt-3" id="single-phone-result" aria-live="polite"></div><p class="input-help mt-3" data-i18n="localPhoneCaveat">Format checks and your own history only; the owner is not verified.</p></section></div>
+      </section>
+
+      <section class="page" id="page-awareness" aria-labelledby="awareness-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="navAwareness">Scam awareness</span></div><h1 id="awareness-title" data-i18n="awarenessTitle">Scam awareness</h1><p data-i18n="awarenessSubtitle">Simple habits that make common scams harder to pull off.</p></div></div>
+        <div class="surface awareness-list"><article><h2 data-i18n="awarenessUrgency">Pause when a message creates urgency</h2><p data-i18n="awarenessUrgencyBody">Contact the organization through its official app or a number you find independently.</p></article><article><h2 data-i18n="awarenessCodes">Never share sign-in codes</h2><p data-i18n="awarenessCodesBody">Banks and legitimate services do not need you to send a PIN, password, or one-time code in a message.</p></article><article><h2 data-i18n="awarenessLinks">Check links before opening them</h2><p data-i18n="awarenessLinksBody">Read the full domain carefully and avoid shortened links in unexpected messages.</p></article><article><h2 data-i18n="awarenessPayments">Pause unusual payment requests</h2><p data-i18n="awarenessPaymentsBody">Gift cards, crypto, and urgent transfer requests are hard to reverse. Verify first.</p></article></div>
+      </section>
+
+      <section class="page" id="page-profile" aria-labelledby="profile-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="navProfile">Profile</span></div><h1 id="profile-title" data-i18n="profileTitle">Profile and settings</h1></div></div>
+        <section class="surface profile-details"><div><span data-i18n="fullName">Name</span><strong id="profile-name"></strong></div><div><span data-i18n="emailAddress">Email</span><strong id="profile-email"></strong></div><div><span data-i18n="accountRole">Account type</span><strong id="profile-role"></strong></div><button class="btn btn-outline-app" type="button" data-action="delete-own-history" data-i18n="clearHistory">Clear my scam history</button><button class="btn btn-outline-app" type="button" data-action="invite-admin" data-i18n="inviteAdmin" hidden>Invite admin</button></section>
+      </section>
+
+      <section class="page" id="page-results" aria-labelledby="results-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="analysisComplete">Analysis complete</span></div><h1 id="results-title" data-i18n="resultsTitle">Your message breakdown</h1><p data-i18n="resultsSub">Here are the signals behind this assessment.</p></div><button class="btn btn-outline-app" data-go="analyzer"><i class="bi bi-arrow-left me-1"></i><span data-i18n="checkAnother">Check another</span></button></div>
+        <div class="result-wrap">
+          <div class="result-banner" id="result-banner" style="--risk-color:#bc5943;--risk-deg:0deg">
+            <div class="risk-gauge"><span class="risk-score" id="risk-score">--</span></div>
+            <div class="risk-copy"><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="riskLevel">Risk level</span></div><h2 id="risk-title">Waiting for a message</h2><p id="risk-summary">Analyze a message to see its risk assessment.</p></div>
+            <div class="result-actions"><button class="btn btn-outline-app" id="copy-report"><i class="bi bi-copy me-1"></i><span data-i18n="copySummary">Copy summary</span></button><button class="btn btn-outline-app" data-role="user" data-report-open><i class="bi bi-flag me-1"></i><span data-i18n="reportIt">Report it</span></button></div>
+          </div>
+          <div class="history-match" id="history-match" hidden></div>
+          <div class="result-columns">
+            <section class="surface"><div class="surface-title"><h3 data-i18n="whyFlagged">Why this was flagged</h3><span id="signal-count">0 signals</span></div><div class="signal-list" id="signal-list"></div></section>
+            <section class="surface"><div class="surface-title"><h3 data-i18n="messageReviewed">Message reviewed</h3></div><div class="quoted-message" id="quoted-message"></div><div class="advice-box"><strong><i class="bi bi-shield-exclamation me-1"></i><span data-i18n="whatToDo">What to do next</span></strong><span id="risk-advice"></span></div></section>
+          </div>
+          <div class="result-checks">
+            <section class="surface"><div class="surface-title"><h3 data-i18n="scamTypeTitle">Scam type</h3></div><strong id="scam-type-result"></strong></section>
+            <section class="surface"><div class="surface-title"><h3 data-i18n="urlScanTitle">URL scanner</h3></div><div class="check-list" id="url-results"></div></section>
+            <section class="surface"><div class="surface-title"><h3 data-i18n="phoneCheckTitle">Phone number checker</h3></div><div class="check-list" id="phone-results"></div></section>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-history" aria-labelledby="history-title">
+        <div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="navHistory">Scam history</span></div><h1 id="history-title" data-i18n="historyTitle">Scam history</h1><p data-i18n="historySubtitle">Cases checked in this browser.</p></div></div>
+        <section class="surface"><div class="surface-title"><h3 data-i18n="historyTitle">Scam history</h3><span id="history-count">0</span></div><div class="history-list" id="history-list"></div></section>
+      </section>
+
+      <section class="page" id="page-dashboard" aria-labelledby="dashboard-title">
+        <div class="page-head dashboard-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="overview">Overview</span></div><h1 id="dashboard-title" data-i18n="dashboardTitle">Admin dashboard</h1><p data-i18n="dashboardSub">A local snapshot of checks and community reports.</p></div></div>
+        <div class="dashboard-metrics">
+          <article class="metric"><span class="metric-label" data-i18n="totalChecks">Messages checked</span><strong class="metric-value" id="metric-checks">0</strong><span class="metric-note"><i class="bi bi-arrow-up-right"></i> <span data-i18n="localSession">This browser session</span></span></article>
+          <article class="metric"><span class="metric-label" data-i18n="highRisk">High risk flags</span><strong class="metric-value" id="metric-high">0</strong><span class="metric-note" data-i18n="riskSignals">Needs extra caution</span></article>
+          <article class="metric"><span class="metric-label" data-i18n="reportsFiled">Reports filed</span><strong class="metric-value" id="metric-reports">0</strong><span class="metric-note" data-i18n="communityData">In this browser</span></article>
+          <article class="metric"><span class="metric-label" data-i18n="usersTitle">Users</span><strong class="metric-value" id="metric-users">0</strong><span class="metric-note" data-i18n="adminAccountsNote">Accounts in this project</span></article>
+        </div>
+        <div class="dashboard-grid">
+          <section class="surface"><div class="surface-title"><h3 data-i18n="riskActivity">Risk activity</h3><span data-i18n="recentChecks">Recent checks</span></div><div class="chart-bars" id="chart-bars" aria-label="Risk activity chart"></div></section>
+          <section class="surface"><div class="surface-title"><h3 data-i18n="recentReports">Recent reports</h3><span id="report-total">0</span></div><div class="activity-list" id="activity-list"><div class="activity-item"><span class="activity-icon"><i class="bi bi-inbox"></i></span><div><strong data-i18n="noReportsYet">No reports yet</strong><small data-i18n="reportsAppear">Submitted reports appear here.</small></div></div></div></section>
+        </div>
+        <p class="input-help mt-3" data-i18n="adminDataNote">Admin statistics cover accounts and reports in this Supabase project.</p>
+      </section>
+
+      <section class="page" id="page-admin-reports" aria-labelledby="admin-reports-title"><div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="overview">Admin</span></div><h1 id="admin-reports-title" data-i18n="adminReportsTitle">Review reported scams</h1></div></div><section class="surface"><div class="history-list" id="admin-reports-list"></div></section></section>
+      <section class="page" id="page-scam-database" aria-labelledby="scam-database-title"><div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="overview">Admin</span></div><h1 id="scam-database-title" data-i18n="scamDatabaseTitle">Scam database</h1><p data-i18n="databaseHint">Analyzed cases across all accounts.</p></div></div><section class="surface"><div class="history-list" id="admin-cases-list"></div></section></section>
+      <section class="page" id="page-admin-users" aria-labelledby="admin-users-title"><div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="overview">Admin</span></div><h1 id="admin-users-title" data-i18n="usersTitle">Users</h1></div></div><section class="surface"><form id="admin-invite-form" class="d-flex gap-2 mb-3"><label class="visually-hidden" for="admin-invite-email" data-i18n="emailAddress">Email address</label><input class="form-control" id="admin-invite-email" type="email" required data-i18n-placeholder="inviteAdminPlaceholder" placeholder="Invite admin by email"><button class="btn btn-green text-nowrap" type="submit" data-i18n="inviteAdmin">Invite admin</button></form><div id="admin-users-list" class="history-list"></div></section></section>
+      <section class="page" id="page-admin-insights" aria-labelledby="admin-insights-title"><div class="page-head"><div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="overview">Admin</span></div><h1 id="admin-insights-title" data-i18n="insightsTitle">Scam trends and detection performance</h1></div></div><div class="dashboard-grid"><section class="surface"><div class="surface-title"><h2 data-i18n="scamTrends">Scam trends</h2></div><div id="admin-trends-list" class="history-list"></div></section><section class="surface"><div class="surface-title"><h2 data-i18n="detectionPerformance">Detection performance</h2></div><div id="admin-performance-list" class="history-list"></div></section></div></section>
+    </main>
+  </div>
+  <div class="modal fade" id="report-modal" tabindex="-1" aria-labelledby="report-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><div><div class="eyebrow mb-1"><span class="eyebrow-dot"></span><span data-i18n="communitySafety">Community safety</span></div><h2 class="modal-title fs-5" id="report-title" data-i18n="reportScamTitle">Report a scam</h2></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <form id="report-form"><div class="modal-body"><p class="text-secondary small mb-3" data-i18n="reportIntro">Share the details without including passwords, PINs, or account numbers.</p><label class="form-label" for="report-type" data-i18n="scamType">Scam type</label><select class="form-select mb-3" id="report-type"><option value="SMS / messaging">SMS / messaging</option><option value="Bank impersonation">Bank impersonation</option><option value="Job offer">Job offer</option><option value="Online shopping">Online shopping</option><option value="Other">Other</option></select><label class="form-label" for="report-details" data-i18n="reportDetails">What happened?</label><textarea class="form-control" id="report-details" rows="3" maxlength="500" data-i18n-placeholder="reportPlaceholder" placeholder="Describe the suspicious message or interaction" required></textarea><div class="d-flex justify-content-end mt-3"><button class="btn btn-green" type="submit"><i class="bi bi-send me-1"></i><span data-i18n="submitReport">Submit report</span></button></div></div></form>
+    </div></div>
+  </div>
+  <div class="toast-container position-fixed bottom-0 end-0 p-3"><div class="toast" id="app-toast" role="status" aria-live="polite"><div class="toast-body d-flex justify-content-between align-items-center"><span id="toast-message"></span><button type="button" class="btn-close ms-3" data-bs-dismiss="toast" aria-label="Close"></button></div></div></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    const translations = {
+      en: {
+        workspace:"Workspace", tools:"Tools", navHome:"Home", navAnalyzer:"Message analyzer", navDashboard:"Admin dashboard", navRisk:"AI risk engine", navExplain:"Explainable AI", navReport:"Report a scam", privacyTitle:"Your message stays yours", privacyBody:"Checks run in this demo in your browser. Avoid sharing passwords or private account details.", saferInbox:"A safer inbox starts here", homeTitle:"Pause. Check. Protect.", homeSub:"A second opinion for the messages that don't feel right.", heroKicker:"Your personal scam spotter", heroTitle:"Trust your gut.<br>Verify the message.", heroBody:"Spot pressure tactics, suspicious links, and requests for money before they catch you off guard.", checkMessage:"Check a message", quickCheck:"Quick message check", multiLanguage:"Multilingual", pasteHere:"Paste your suspicious message here", privateCheck:"Your message isn't saved", analyzeNow:"Analyze message", howItWorks:"How it works", stepOne:"Paste the message", stepOneBody:"SMS, email, social post, or chat.", stepTwo:"Review the signals", stepTwoBody:"See what looks risky and why.", stepThree:"Choose your next step", stepThreeBody:"Get practical guidance, not just a score.", toolsForYou:"Protection tools", viewDashboard:"View dashboard", featureRisk:"AI risk engine", featureRiskSub:"Signals, not guesswork", featureExplain:"Clear explanations", featureExplainSub:"Know what triggered a flag", featureReport:"Scam reporting", featureReportSub:"Help your community stay alert", featureLanguage:"English + Kiswahili", featureLanguageSub:"Built for more conversations", askShield:"Ask Shield", askHint:"Ask a safety question in your language. Try “What should I do if I shared my PIN?”", askPlaceholder:"Ask a question in any language", checkBefore:"Check before you click", analyzerTitle:"Message analyzer", analyzerSub:"Paste the full message for a clearer risk assessment.", whatLooksOff:"Let's see what looks off.", analyzerIntro:"We look for pressure, payment requests, suspicious links, and personal information requests.", messageLabel:"Suspicious message", localAnalysis:"Demo analysis happens locally in this browser.", analyzeMessage:"Analyze message", tryExample:"Try an example:", exampleUrgent:"Urgent bank alert", examplePrize:"Prize message", exampleSafe:"Normal delivery update", noAccount:"No account needed", noStorage:"No message storage", explainable:"Every flag explained", analysisComplete:"Analysis complete", resultsTitle:"Your message breakdown", resultsSub:"Here are the signals behind this assessment.", checkAnother:"Check another", riskLevel:"Risk level", copySummary:"Copy summary", reportIt:"Report it", whyFlagged:"Why this was flagged", messageReviewed:"Message reviewed", whatToDo:"What to do next", overview:"Overview", dashboardTitle:"Admin dashboard", dashboardSub:"A local snapshot of checks and community reports.", newReport:"New report", totalChecks:"Messages checked", highRisk:"High risk flags", reportsFiled:"Reports filed", localSession:"This browser session", riskSignals:"Needs extra caution", communityData:"In this browser", languages:"Languages", riskActivity:"Risk activity", recentChecks:"Recent checks", recentReports:"Recent reports", noReportsYet:"No reports yet", reportsAppear:"Submitted reports appear here.", dashboardDemoNote:"Dashboard data is stored only in this browser. This demo has no shared admin backend.", communitySafety:"Community safety", reportScamTitle:"Report a scam", reportIntro:"Share the details without including passwords, PINs, or account numbers.", scamType:"Scam type", reportDetails:"What happened?", reportPlaceholder:"Describe the suspicious message or interaction", submitReport:"Submit report", enterMessage:"Paste a message first so I can check it.", lowRisk:"Low risk", mediumRisk:"Use caution", highRiskTitle:"High risk", lowSummary:"We found few common scam signals. Stay alert and verify unexpected requests independently.", mediumSummary:"Some warning signs showed up. Verify the sender before clicking or replying.", highSummary:"Several strong scam signals appeared. Do not click, pay, or share personal details.", signalUrgency:"Pressure or urgency", signalUrgencyBody:"Scammers rush people so they act before checking the facts.", signalMoney:"Money or payment request", signalMoneyBody:"The message pushes you to transfer money, pay a fee, or use an unusual payment method.", signalSecret:"Sensitive information request", signalSecretBody:"Legitimate organizations should not ask for your password, PIN, or one-time code by message.", signalLink:"Link or web address", signalLinkBody:"Unexpected links can lead to fake sign-in pages or unsafe downloads.", signalPrize:"Unexpected reward or offer", signalPrizeBody:"A prize you did not enter for can be bait to collect money or personal information.", signalThreat:"Threat or account warning", signalThreatBody:"Threats of account closure or legal action are a common pressure tactic.", signalGeneric:"Unusual message pattern", signalGenericBody:"This wording deserves a closer look. Contact the sender through a trusted channel.", signalNoStrong:"No strong scam signals found", signalNoStrongBody:"That does not guarantee the message is safe. Verify unexpected requests independently.", adviceHigh:"Do not reply, click links, or send money. Contact the organization using a number or website you find independently. If you shared banking details, contact your bank now.", adviceMedium:"Pause before acting. Find the sender's official website or phone number yourself and ask whether the message is real.", adviceLow:"No common warning signs were detected, but a low score is not a guarantee. Be careful with unexpected links and requests.", signals:"signals", copied:"Summary copied.", copyFail:"Couldn't copy automatically. Select and copy the summary.", reportSaved:"Report saved in this browser.", questionEmpty:"Ask a question first.", qPin:"If you shared your PIN, contact your bank immediately using its official app or the number on your card. Ask them to block access, change your PIN from a trusted device, and review recent transactions. Never share a one-time code.", qLink:"Don't open the link again. Visit the service's official site by typing its address yourself, change your password if you entered it, and enable two-factor authentication.", qMoney:"Stop further payments and contact your bank or payment provider immediately. Save screenshots and report the incident to your local fraud authority.", qGeneric:"Pause before replying or clicking. Verify the sender through an official phone number or website you find independently. Never share your password, PIN, or one-time code. If money or account access is involved, contact your bank directly.", qSwPin:"Kama umeshiriki PIN yako, wasiliana na benki yako mara moja kupitia programu rasmi au nambari iliyo kwenye kadi yako. Omba wafunge ufikiaji, badilisha PIN kwa kifaa salama, na ukague miamala ya hivi karibuni. Usishiriki msimbo wa uthibitisho.", qSwLink:"Usifungue kiungo hicho tena. Tembelea tovuti rasmi kwa kuandika anwani mwenyewe. Ikiwa uliingiza nenosiri, libadilishe na uwashe uthibitishaji wa hatua mbili.", qSwMoney:"Sitisha malipo mengine na uwasiliane na benki au huduma ya malipo mara moja. Hifadhi picha za skrini na uripoti tukio kwa mamlaka ya ulaghai iliyo karibu nawe.", qSwGeneric:"Subiri kabla ya kujibu au kubofya. Thibitisha mtumaji kwa kutumia nambari rasmi au tovuti unayoipata mwenyewe. Usishiriki nenosiri, PIN, au msimbo wa uthibitisho. Ikiwa pesa au akaunti yako imehusika, wasiliana na benki yako moja kwa moja.", reportTitle:"Scam report", scoreLabel:"Risk score", chartLabels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+      },
+      sw: {
+        workspace:"Eneo la kazi", tools:"Zana", navHome:"Nyumbani", navAnalyzer:"Kichanganuzi cha ujumbe", navDashboard:"Dashibodi ya msimamizi", navRisk:"Injini ya hatari ya AI", navExplain:"AI inayoelezeka", navReport:"Ripoti ulaghai", privacyTitle:"Ujumbe wako ni wako", privacyBody:"Katika onyesho hili, ukaguzi hufanyika kwenye kivinjari chako. Usishiriki nywila au maelezo ya akaunti binafsi.", saferInbox:"Usalama wa ujumbe wako unaanzia hapa", homeTitle:"Subiri. Kagua. Jilinde.", homeSub:"Pata maoni ya pili kuhusu ujumbe unaotia shaka.", heroKicker:"Msaidizi wako wa kutambua ulaghai", heroTitle:"Sikiliza hisia zako.<br>Thibitisha ujumbe.", heroBody:"Tambua shinikizo, viungo vya kutiliwa shaka na maombi ya pesa kabla hayajakudanganya.", checkMessage:"Kagua ujumbe", quickCheck:"Ukaguzi wa haraka wa ujumbe", multiLanguage:"Lugha nyingi", pasteHere:"Bandika ujumbe unaoutilia shaka hapa", privateCheck:"Ujumbe wako hauhifadhiwi", analyzeNow:"Changanua ujumbe", howItWorks:"Jinsi inavyofanya kazi", stepOne:"Bandika ujumbe", stepOneBody:"SMS, barua pepe, chapisho au gumzo.", stepTwo:"Kagua ishara", stepTwoBody:"Ona kilicho hatari na sababu zake.", stepThree:"Chagua hatua inayofuata", stepThreeBody:"Pata ushauri wa vitendo, si alama pekee.", toolsForYou:"Zana za ulinzi", viewDashboard:"Angalia dashibodi", featureRisk:"Injini ya hatari ya AI", featureRiskSub:"Ishara, si kubahatisha", featureExplain:"Maelezo yaliyo wazi", featureExplainSub:"Jua kilichosababisha onyo", featureReport:"Kuripoti ulaghai", featureReportSub:"Saidia jamii yako kuwa macho", featureLanguage:"Kiingereza + Kiswahili", featureLanguageSub:"Imeundwa kwa mazungumzo zaidi", askShield:"Muulize Shield", askHint:"Uliza swali la usalama kwa lugha yako. Jaribu “Nifanye nini nikishiriki PIN yangu?”", askPlaceholder:"Uliza swali kwa lugha yoyote", checkBefore:"Kagua kabla ya kubofya", analyzerTitle:"Kichanganuzi cha ujumbe", analyzerSub:"Bandika ujumbe wote ili kupata tathmini bora ya hatari.", whatLooksOff:"Tuangalie kinachotia shaka.", analyzerIntro:"Tunatafuta shinikizo, maombi ya malipo, viungo vya kutiliwa shaka na maombi ya taarifa binafsi.", messageLabel:"Ujumbe unaoutilia shaka", localAnalysis:"Uchanganuzi wa onyesho hufanyika kwenye kivinjari hiki.", analyzeMessage:"Changanua ujumbe", tryExample:"Jaribu mfano:", exampleUrgent:"Tahadhari ya haraka ya benki", examplePrize:"Ujumbe wa zawadi", exampleSafe:"Taarifa ya kawaida ya usafirishaji", noAccount:"Huhitaji akaunti", noStorage:"Ujumbe hauhifadhiwi", explainable:"Kila onyo linaelezwa", analysisComplete:"Uchanganuzi umekamilika", resultsTitle:"Muhtasari wa ujumbe wako", resultsSub:"Hizi ndizo ishara zilizoathiri tathmini hii.", checkAnother:"Kagua mwingine", riskLevel:"Kiwango cha hatari", copySummary:"Nakili muhtasari", reportIt:"Ripoti", whyFlagged:"Sababu za onyo hili", messageReviewed:"Ujumbe uliokaguliwa", whatToDo:"Hatua inayofuata", overview:"Muhtasari", dashboardTitle:"Dashibodi ya msimamizi", dashboardSub:"Muhtasari wa ukaguzi na ripoti za jamii kwenye kivinjari hiki.", newReport:"Ripoti mpya", totalChecks:"Ujumbe uliokaguliwa", highRisk:"Tahadhari za hatari kubwa", reportsFiled:"Ripoti zilizowasilishwa", localSession:"Kipindi hiki cha kivinjari", riskSignals:"Unahitaji tahadhari zaidi", communityData:"Kwenye kivinjari hiki", languages:"Lugha", riskActivity:"Shughuli za hatari", recentChecks:"Ukaguzi wa hivi karibuni", recentReports:"Ripoti za hivi karibuni", noReportsYet:"Bado hakuna ripoti", reportsAppear:"Ripoti zilizowasilishwa zitaonekana hapa.", dashboardDemoNote:"Data ya dashibodi huhifadhiwa kwenye kivinjari hiki tu. Onyesho hili halina seva ya pamoja ya usimamizi.", communitySafety:"Usalama wa jamii", reportScamTitle:"Ripoti ulaghai", reportIntro:"Eleza kilichotokea bila kujumuisha nywila, PIN au nambari za akaunti.", scamType:"Aina ya ulaghai", reportDetails:"Nini kimetokea?", reportPlaceholder:"Eleza ujumbe au mawasiliano yanayotia shaka", submitReport:"Wasilisha ripoti", enterMessage:"Bandika ujumbe kwanza ili niukague.", lowRisk:"Hatari ndogo", mediumRisk:"Kuwa mwangalifu", highRiskTitle:"Hatari kubwa", lowSummary:"Tumegundua ishara chache za kawaida za ulaghai. Endelea kuwa macho na uthibitishe maombi usiyotarajia.", mediumSummary:"Kuna ishara za tahadhari. Thibitisha mtumaji kabla ya kubofya au kujibu.", highSummary:"Kuna ishara kadhaa kali za ulaghai. Usibofye, usilipe wala kushiriki taarifa binafsi.", signalUrgency:"Shinikizo au uharaka", signalUrgencyBody:"Walaghai huharakisha watu ili wachukue hatua bila kuthibitisha ukweli.", signalMoney:"Ombi la pesa au malipo", signalMoneyBody:"Ujumbe unakushinikiza kutuma pesa, kulipa ada au kutumia njia isiyo ya kawaida.", signalSecret:"Ombi la taarifa za siri", signalSecretBody:"Mashirika halali hayapaswi kukuomba nywila, PIN au msimbo wa muda kupitia ujumbe.", signalLink:"Kiungo au anwani ya tovuti", signalLinkBody:"Viungo usivyotarajia vinaweza kukupeleka kwenye tovuti bandia au kupakua faili hatari.", signalPrize:"Zawadi au ofa usiyotarajia", signalPrizeBody:"Zawadi ambayo hukuiombea inaweza kuwa mtego wa kupata pesa au taarifa zako.", signalThreat:"Tishio au onyo la akaunti", signalThreatBody:"Vitisho vya kufungwa kwa akaunti au hatua za kisheria ni mbinu ya kawaida ya shinikizo.", signalGeneric:"Muundo wa ujumbe usio wa kawaida", signalGenericBody:"Maneno haya yanahitaji kuangaliwa kwa makini. Wasiliana na mtumaji kupitia njia unayoamini.", signalNoStrong:"Hakuna ishara kali za ulaghai", signalNoStrongBody:"Hii haithibitishi kuwa ujumbe ni salama. Thibitisha maombi usiyotarajia kupitia njia rasmi.", adviceHigh:"Usijibu, usibofye viungo wala kutuma pesa. Wasiliana na shirika kupitia nambari au tovuti unayoipata mwenyewe. Ikiwa umeshiriki maelezo ya benki, wasiliana na benki yako sasa.", adviceMedium:"Subiri kabla ya kuchukua hatua. Tafuta tovuti au nambari rasmi ya mtumaji mwenyewe na uthibitishe ujumbe.", adviceLow:"Hakuna ishara za kawaida za hatari zilizopatikana, lakini alama ndogo si uthibitisho wa usalama. Kuwa mwangalifu na viungo au maombi usiyotarajia.", signals:"ishara", copied:"Muhtasari umenakiliwa.", copyFail:"Haikuweza kunakiliwa. Chagua na unakili muhtasari.", reportSaved:"Ripoti imehifadhiwa kwenye kivinjari hiki.", questionEmpty:"Andika swali kwanza.", qPin:"Ikiwa umeshiriki PIN yako, wasiliana na benki mara moja kupitia programu rasmi au nambari iliyo kwenye kadi yako. Omba wafunge ufikiaji, badilisha PIN kupitia kifaa salama na ukague miamala ya hivi karibuni. Usishiriki msimbo wa uthibitisho.", qLink:"Usifungue kiungo tena. Tembelea tovuti rasmi kwa kuandika anwani mwenyewe. Ikiwa uliingiza nywila, ibadilishe na uwashe uthibitishaji wa hatua mbili.", qMoney:"Sitisha malipo mengine na uwasiliane na benki au huduma ya malipo mara moja. Hifadhi picha za skrini na uripoti tukio kwa mamlaka ya ulaghai iliyo karibu nawe.", qGeneric:"Subiri kabla ya kujibu au kubofya. Thibitisha mtumaji kwa kutumia nambari rasmi au tovuti unayoipata mwenyewe. Usishiriki nywila, PIN au msimbo wa uthibitisho. Ikiwa pesa au akaunti yako imehusika, wasiliana na benki yako moja kwa moja.", qSwPin:"Kama umeshiriki PIN yako, wasiliana na benki yako mara moja kupitia programu rasmi au nambari iliyo kwenye kadi yako. Omba wafunge ufikiaji, badilisha PIN kwa kifaa salama, na ukague miamala ya hivi karibuni. Usishiriki msimbo wa uthibitisho.", qSwLink:"Usifungue kiungo hicho tena. Tembelea tovuti rasmi kwa kuandika anwani mwenyewe. Ikiwa uliingiza nenosiri, libadilishe na uwashe uthibitishaji wa hatua mbili.", qSwMoney:"Sitisha malipo mengine na uwasiliane na benki au huduma ya malipo mara moja. Hifadhi picha za skrini na uripoti tukio kwa mamlaka ya ulaghai iliyo karibu nawe.", qSwGeneric:"Subiri kabla ya kujibu au kubofya. Thibitisha mtumaji kwa kutumia nambari rasmi au tovuti unayoipata mwenyewe. Usishiriki nenosiri, PIN, au msimbo wa uthibitisho. Ikiwa pesa au akaunti yako imehusika, wasiliana na benki yako moja kwa moja.", reportTitle:"Ripoti ya ulaghai", scoreLabel:"Alama ya hatari", chartLabels:["Jtt","Jtn","Jnn","Alh","Ijm","Jmo","Jpl"]
+      }
+    };
+    Object.assign(translations.en, {
+      featuresMenu:"Features", login:"Log in", createAccount:"Create account", register:"Register", accountAccess:"Account access", authPageTitle:"Join ScamShield", authPageSub:"Create an account to keep your safety tools close.", authStoryTitle:"Make every message a little less uncertain.", authStoryBody:"Check suspicious messages, understand the warning signs, and help your community stay safer.", authStoryNote:"English and Kiswahili support", welcomeBack:"Welcome back", loginSubtitle:"Log in to your ScamShield account.", registerSubtitle:"Create your ScamShield account.", fullName:"Full name", namePlaceholder:"Your name", emailAddress:"Email address", emailPlaceholder:"you@example.com", password:"Password", passwordPlaceholder:"At least 8 characters", confirmPassword:"Confirm password", confirmPlaceholder:"Enter your password again", authDemoNote:"Demo only: accounts work in this page session. Connect an authentication backend for secure, persistent accounts.", logout:"Log out", accountCreated:"Demo account created. You are now signed in.", loginSuccess:"You are signed in.", loginFailed:"No matching demo account in this page session. Register first.", passwordMismatch:"Passwords do not match."
+    });
+    Object.assign(translations.sw, {
+      featuresMenu:"Vipengele", login:"Ingia", createAccount:"Fungua akaunti", register:"Jisajili", accountAccess:"Ufikiaji wa akaunti", authPageTitle:"Jiunge na ScamShield", authPageSub:"Fungua akaunti ili uweze kutumia zana zako za usalama.", authStoryTitle:"Fanya kila ujumbe uwe rahisi kuelewa.", authStoryBody:"Kagua ujumbe unaotia shaka, elewa ishara za hatari na usaidie jamii yako kuwa salama.", authStoryNote:"Usaidizi wa Kiingereza na Kiswahili", welcomeBack:"Karibu tena", loginSubtitle:"Ingia kwenye akaunti yako ya ScamShield.", registerSubtitle:"Fungua akaunti yako ya ScamShield.", fullName:"Jina kamili", namePlaceholder:"Jina lako", emailAddress:"Anwani ya barua pepe", emailPlaceholder:"wewe@example.com", password:"Nenosiri", passwordPlaceholder:"Angalau herufi 8", confirmPassword:"Thibitisha nenosiri", confirmPlaceholder:"Weka nenosiri tena", authDemoNote:"Onyesho pekee: akaunti hufanya kazi katika kipindi hiki cha ukurasa. Unganisha mfumo wa uthibitishaji kwa akaunti salama na za kudumu.", logout:"Toka", accountCreated:"Akaunti ya onyesho imefunguliwa. Umeingia.", loginSuccess:"Umeingia.", loginFailed:"Hakuna akaunti ya onyesho inayolingana katika kipindi hiki. Jisajili kwanza.", passwordMismatch:"Nenosiri hazilingani."
+    });
+    Object.assign(translations.en, { navExplain:"Explainable AI", authDemoNote:"Demo only: this account is saved in this browser. A backend is required for secure accounts.", loginFailed:"No saved demo account matches those details. Register once in this browser first.", accountSaveFailed:"Couldn't save the account. Browser storage or secure cryptography may be unavailable." });
+    Object.assign(translations.sw, { navExplain:"AI inayoelezeka", authDemoNote:"Onyesho pekee: akaunti huhifadhiwa kwenye kivinjari hiki. Mfumo wa seva unahitajika kwa akaunti salama.", loginFailed:"Hakuna akaunti ya onyesho iliyohifadhiwa inayolingana. Jisajili mara moja kwenye kivinjari hiki kwanza.", accountSaveFailed:"Akaunti haikuhifadhiwa. Hifadhi ya kivinjari au usimbaji fiche haupatikani." });
+    Object.assign(translations.en, { navHistory:"Scam history", historyTitle:"Scam history", historySubtitle:"Previously analyzed cases saved in this browser.", historyEmpty:"No analyzed cases yet.", historyReview:"Review", historyStored:"Cases saved in this browser", scamTypeTitle:"Scam type", typeBank:"Bank or payment impersonation", typeDelivery:"Delivery or parcel scam", typeJob:"Job or task scam", typePrize:"Prize or lottery scam", typeInvestment:"Investment or crypto scam", typeRomance:"Romance scam", typeCredential:"Credential or phishing scam", typeImpersonation:"Organization impersonation", typeOther:"Other or unclear scam", urlScanTitle:"URL scanner", urlNone:"No links found in message.", urlReview:"Needs caution", urlUnverified:"Not checked online", urlWarnHttp:"Link does not use HTTPS.", urlWarnShortener:"Shortened link hides its destination.", urlWarnIp:"Link uses a numeric IP address.", urlWarnPunycode:"Domain uses international characters that may be imitated.", urlWarnLong:"Link has an unusually long subdomain.", urlWarnSuspiciousTld:"Domain ending is commonly abused.", phoneCheckTitle:"Phone number checker", phoneNone:"No phone numbers found.", phoneValid:"Number format looks possible; owner is not verified.", phoneInvalid:"Number format looks incomplete or unusual.", phoneNoLookup:"This demo cannot verify who owns a number.", previousMatch:"This message matches a case checked earlier.", whatToDo:"Recommended action" });
+    Object.assign(translations.sw, { navHistory:"Historia ya ulaghai", historyTitle:"Historia ya ulaghai", historySubtitle:"Kesi zilizochanganuliwa kwenye kivinjari hiki.", historyEmpty:"Bado hakuna kesi zilizochanganuliwa.", historyReview:"Kagua", historyStored:"Kesi huhifadhiwa kwenye kivinjari hiki", scamTypeTitle:"Aina ya ulaghai", typeBank:"Kujifanya benki au huduma ya malipo", typeDelivery:"Ulaghai wa usafirishaji", typeJob:"Ulaghai wa kazi", typePrize:"Ulaghai wa zawadi au bahati nasibu", typeInvestment:"Ulaghai wa uwekezaji au sarafu ya kidijitali", typeRomance:"Ulaghai wa mahusiano", typeCredential:"Ulaghai wa nywila au taarifa za akaunti", typeImpersonation:"Kujifanya shirika", typeOther:"Ulaghai mwingine au usiojulikana", urlScanTitle:"Kikagua viungo", urlNone:"Hakuna kiungo kilichopatikana kwenye ujumbe.", urlReview:"Kinahitaji tahadhari", urlUnverified:"Hakijathibitishwa mtandaoni", urlWarnHttp:"Kiungo hakitumii HTTPS.", urlWarnShortener:"Kiungo kifupi kinaficha anwani kinakoelekea.", urlWarnIp:"Kiungo kinatumia anwani ya IP moja kwa moja.", urlWarnPunycode:"Jina la tovuti lina herufi za kimataifa zinazoweza kuigwa.", urlWarnLong:"Kiungo kina sehemu nyingi za jina la tovuti kuliko kawaida.", urlWarnSuspiciousTld:"Mwisho wa jina la tovuti hutumiwa vibaya mara nyingi.", phoneCheckTitle:"Kikagua nambari za simu", phoneNone:"Hakuna nambari ya simu iliyopatikana.", phoneValid:"Muundo wa nambari unaonekana sawa; mmiliki hajathibitishwa.", phoneInvalid:"Muundo wa nambari haujakamilika au si wa kawaida.", phoneNoLookup:"Onyesho hili haliwezi kuthibitisha mmiliki wa nambari.", previousMatch:"Ujumbe huu unafanana na kesi iliyokaguliwa awali.", whatToDo:"Hatua inayopendekezwa" });
+    Object.assign(translations.en, { navAwareness:"Scam awareness", navProfile:"Profile", urlPageHint:"Paste a link to check it for common warning signs.", urlInputLabel:"Link to check", scanUrl:"Scan URL", localUrlCaveat:"Checks run locally. This does not query live threat-intelligence services.", phonePageHint:"Check a number's format and look for it in your own scam history.", phoneInputLabel:"Phone number", checkPhone:"Check number", localPhoneCaveat:"Format checks and your own history only; the owner is not verified.", awarenessTitle:"Scam awareness", awarenessSubtitle:"Simple habits that make common scams harder to pull off.", awarenessUrgency:"Pause when a message creates urgency", awarenessUrgencyBody:"Contact the organization through its official app or a number you find independently.", awarenessCodes:"Never share sign-in codes", awarenessCodesBody:"Banks and legitimate services do not need you to send a PIN, password, or one-time code in a message.", awarenessLinks:"Check links before opening them", awarenessLinksBody:"Read the full domain carefully and avoid shortened links in unexpected messages.", awarenessPayments:"Pause unusual payment requests", awarenessPaymentsBody:"Gift cards, crypto, and urgent transfer requests are hard to reverse. Verify first.", profileTitle:"Profile and settings", accountRole:"Account type", clearHistory:"Clear my scam history", adminReportsTitle:"Review reported scams", scamDatabaseTitle:"Scam database", usersTitle:"Users", insightsTitle:"Scam trends and detection performance", databaseHint:"Analyzed cases across all accounts.", inviteAdmin:"Invite admin", inviteAdminPlaceholder:"Invite admin by email", noData:"No data available.", reportedBy:"Reported by", statusOpen:"Open", statusReviewing:"Reviewing", statusConfirmed:"Confirmed scam", statusFalsePositive:"False positive", statusClosed:"Closed", updateStatus:"Update status", scamTrends:"Scam trends", detectionPerformance:"Detection performance", casesReviewed:"Cases reviewed", confirmedCases:"Confirmed scams", falsePositiveCases:"False positives", backendNotConfigured:"Connect a Supabase project to use secure accounts.", signupCheckEmail:"Check your email to confirm your account, then log in.", inviteSent:"Admin invitation sent.", adminOnly:"Admin access is required.", caseSaved:"Case saved to your account.", urlInvalid:"Enter a valid web address.", historyCleared:"Your scam history was cleared." });
+    Object.assign(translations.sw, { navAwareness:"Elimu ya ulaghai", navProfile:"Wasifu", urlPageHint:"Bandika kiungo ili kukagua ishara za kawaida za hatari.", urlInputLabel:"Kiungo cha kukagua", scanUrl:"Kagua kiungo", localUrlCaveat:"Ukaguzi hufanyika hapa tu; hautafuti taarifa za vitisho mtandaoni.", phonePageHint:"Kagua muundo wa nambari na ulinganishe na historia yako ya ulaghai.", phoneInputLabel:"Nambari ya simu", checkPhone:"Kagua nambari", localPhoneCaveat:"Ni ukaguzi wa muundo na historia yako tu; mmiliki hajathibitishwa.", awarenessTitle:"Elimu ya ulaghai", awarenessSubtitle:"Tabia rahisi zinazosaidia kuzuia ulaghai wa kawaida.", awarenessUrgency:"Subiri ujumbe unapokushinikiza kuchukua hatua haraka", awarenessUrgencyBody:"Wasiliana na shirika kupitia programu rasmi au nambari unayoitafuta mwenyewe.", awarenessCodes:"Usishiriki misimbo ya kuingia", awarenessCodesBody:"Benki na huduma halali hazihitaji utume PIN, nenosiri au msimbo wa mara moja kwa ujumbe.", awarenessLinks:"Kagua viungo kabla ya kuvifungua", awarenessLinksBody:"Soma jina kamili la tovuti na epuka viungo vifupi usivyotarajia.", awarenessPayments:"Simama unapopokea ombi lisilo la kawaida la malipo", awarenessPaymentsBody:"Kadi za zawadi, sarafu za kidijitali na uhamisho wa haraka ni vigumu kurejesha. Thibitisha kwanza.", profileTitle:"Wasifu na mipangilio", accountRole:"Aina ya akaunti", clearHistory:"Futa historia yangu ya ulaghai", adminReportsTitle:"Kagua taarifa za ulaghai", scamDatabaseTitle:"Hifadhidata ya ulaghai", usersTitle:"Watumiaji", insightsTitle:"Mienendo ya ulaghai na utendaji wa ugunduzi", databaseHint:"Kesi zilizochanganuliwa kwenye akaunti zote.", inviteAdmin:"Alika msimamizi", inviteAdminPlaceholder:"Alika msimamizi kwa barua pepe", noData:"Hakuna data.", reportedBy:"Imetolewa na", statusOpen:"Wazi", statusReviewing:"Inakaguliwa", statusConfirmed:"Ulaghai umethibitishwa", statusFalsePositive:"Tahadhari isiyo sahihi", statusClosed:"Imefungwa", updateStatus:"Badilisha hali", scamTrends:"Mienendo ya ulaghai", detectionPerformance:"Utendaji wa ugunduzi", casesReviewed:"Kesi zilizokaguliwa", confirmedCases:"Ulaghai uliothibitishwa", falsePositiveCases:"Tahadhari zisizo sahihi", backendNotConfigured:"Unganisha mradi wa Supabase ili kutumia akaunti salama.", signupCheckEmail:"Thibitisha akaunti kupitia barua pepe kisha uingie.", inviteSent:"Mwaliko wa msimamizi umetumwa.", adminOnly:"Ufikiaji wa msimamizi unahitajika.", caseSaved:"Kesi imehifadhiwa kwenye akaunti yako.", urlInvalid:"Weka anwani sahihi ya tovuti.", historyCleared:"Historia yako ya ulaghai imefutwa." });
+    Object.assign(translations.en, { authDemoNote:"Sign in uses the ScamShield Supabase project. User reports and cases are private to your account.", signupCheckEmail:"Check your email to confirm your account, then log in.", backendNotConfigured:"Connect Supabase first: copy .env.example to .env.local and enter your project URL and anon key.", dataLoadFailed:"Could not load account data. Check the Supabase schema and access policies.", profileLoadFailed:"Could not load your account role. Contact an administrator.", caseSaveFailed:"Could not save this case. Check your Supabase connection.", adminRole:"Administrator", userRole:"User", adminAccountsNote:"Accounts in this project", adminDataNote:"Admin statistics cover accounts and reports in this Supabase project." });
+    Object.assign(translations.sw, { authDemoNote:"Ingia kupitia mradi wa ScamShield Supabase. Ripoti na kesi zako ni za akaunti yako.", signupCheckEmail:"Thibitisha akaunti kupitia barua pepe kisha uingie.", backendNotConfigured:"Unganisha Supabase: nakili .env.example kuwa .env.local na uweke Project URL na anon key.", dataLoadFailed:"Data haikuweza kupakiwa. Kagua schema na sera za Supabase.", profileLoadFailed:"Jukumu la akaunti halikupatikana. Wasiliana na msimamizi.", caseSaveFailed:"Kesi haikuhifadhiwa. Kagua muunganisho wa Supabase.", adminRole:"Msimamizi", userRole:"Mtumiaji", adminAccountsNote:"Akaunti katika mradi huu", adminDataNote:"Takwimu za msimamizi zinajumuisha akaunti na ripoti za mradi huu wa Supabase." });
+    Object.assign(translations.en, { historySubtitle:"Cases analyzed by your account.", historyStored:"Cases stored in your account", dashboardSub:"Project-wide view of checks and community reports.", localSession:"All accounts in this project", communityData:"In this project" });
+    Object.assign(translations.sw, { historySubtitle:"Kesi zilizochanganuliwa na akaunti yako.", historyStored:"Kesi zimehifadhiwa kwenye akaunti yako", dashboardSub:"Muhtasari wa ukaguzi na ripoti kwenye mradi wote.", localSession:"Akaunti zote kwenye mradi huu", communityData:"Kwenye mradi huu" });
+    Object.assign(translations.en, { authDemoNote:"Accounts are stored in this PostgreSQL database.", signupCheckEmail:"Your account is ready. You are now signed in.", backendNotConfigured:"PostgreSQL is not connected. Check the database settings in .env.local.", dataLoadFailed:"Could not load account data. Check PostgreSQL and the database schema.", profileLoadFailed:"Could not load your account. Please sign in again.", caseSaveFailed:"Could not save this case. Check the PostgreSQL connection.", adminDataNote:"Admin statistics cover accounts and reports in this PostgreSQL database.", adminAccountsNote:"Accounts in this database", inviteAdmin:"Promote admin", inviteAdminPlaceholder:"Promote a registered user by email", inviteSent:"Admin access granted." });
+    Object.assign(translations.sw, { authDemoNote:"Akaunti huhifadhiwa kwenye hifadhidata hii ya PostgreSQL.", signupCheckEmail:"Akaunti yako iko tayari. Umeingia.", backendNotConfigured:"PostgreSQL haijaunganishwa. Kagua mipangilio ya hifadhidata kwenye .env.local.", dataLoadFailed:"Data ya akaunti haikupatikana. Kagua PostgreSQL na schema ya hifadhidata.", profileLoadFailed:"Akaunti yako haikupatikana. Tafadhali ingia tena.", caseSaveFailed:"Kesi haikuhifadhiwa. Kagua muunganisho wa PostgreSQL.", adminDataNote:"Takwimu za msimamizi zinajumuisha akaunti na ripoti katika hifadhidata hii ya PostgreSQL.", adminAccountsNote:"Akaunti katika hifadhidata hii", inviteAdmin:"Mpe msimamizi", inviteAdminPlaceholder:"Mpe mtumiaji aliyesajiliwa kwa barua pepe", inviteSent:"Ufikiaji wa msimamizi umetolewa." });
+    Object.assign(translations.en, { adminTab:"Admin", adminLoginTitle:"Admin login", adminLoginSubtitle:"Log in with your administrator account.", adminLoginButton:"Log in as admin" });
+    Object.assign(translations.sw, { adminTab:"Msimamizi", adminLoginTitle:"Kuingia kwa msimamizi", adminLoginSubtitle:"Ingia kwa akaunti yako ya msimamizi.", adminLoginButton:"Ingia kama msimamizi" });
+    Object.assign(translations.en, { checkerTitle:"URL & phone checker", checkerHint:"Check a link or a phone number for common warning signs." });
+    Object.assign(translations.sw, { checkerTitle:"Kikagua viungo na simu", checkerHint:"Kagua kiungo au nambari ya simu kwa dalili za kawaida za hatari." });
+    const state = { lang: "en", currentMessage: "", latestResult: null, checks: [], reports: [], history: [], profiles: [], authUser: null, profile: null };
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const t = (key) => translations[state.lang][key] || translations.en[key] || key;
+    async function apiRequest(url, options = {}) {
+      const hasBody = options.body !== undefined;
+      const response = await fetch(url, {
+        ...options,
+        credentials: "same-origin",
+        headers: { ...(hasBody ? { "Content-Type": "application/json" } : {}), ...options.headers },
+        body: hasBody ? JSON.stringify(options.body) : undefined
+      });
+      const payload = response.status === 204 ? null : await response.json().catch(() => null);
+      if (!response.ok) {
+        const error = new Error(payload?.error || "The request could not be completed.");
+        error.status = response.status;
+        throw error;
+      }
+      return payload;
+    }
+    async function loadAccountData() {
+      if (!state.authUser) return;
+      try {
+        const data = await apiRequest("/api/account/data");
+        state.history = (data.cases || []).map(item => ({ ...item, scamType: item.scam_type, urlChecks: item.url_checks, phoneChecks: item.phone_checks, level: item.risk_level, date: new Date(item.created_at).getTime() }));
+        state.checks = state.history.map(item => ({ level: item.level, score: item.score, date: item.date }));
+        state.reports = data.reports || [];
+        state.profiles = data.profiles || [];
+        updateDashboard();
+      } catch {
+        toast(t("dataLoadFailed"));
+      }
+    }
+    async function activateUser(profile) {
+      state.authUser = { id: profile.id, email: profile.email };
+      state.profile = profile;
+      await loadAccountData();
+      updateAuthActions();
+      updateDashboard();
+      showView(profile.role === "admin" ? "dashboard" : "home");
+      return true;
+    }
+    async function restoreSession() {
+      try {
+        const { profile } = await apiRequest("/api/auth/session");
+        await activateUser(profile);
+      } catch (error) {
+        if (error.status !== 401) toast(error.message);
+        state.authUser = null; state.profile = null; state.history = []; state.reports = []; state.checks = []; state.profiles = [];
+        updateAuthActions(); updateDashboard(); showView("auth");
+      }
+    }
+    function setLanguage(language) {
+      state.lang = language;
+      document.documentElement.lang = language === "sw" ? "sw" : "en";
+      $$('[data-lang]').forEach(button => { const active = button.dataset.lang === language; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); });
+      $$('[data-i18n]').forEach(node => { const value = t(node.dataset.i18n); if (value.includes("<br>")) node.innerHTML = value; else node.textContent = value; });
+      $$('[data-i18n-placeholder]').forEach(node => node.placeholder = t(node.dataset.i18nPlaceholder));
+      $("#analysis-disclosure").textContent = language === "sw" ? "Onyesho hili hutafuta maneno muhimu tu; huduma ya AI haijaunganishwa." : "Keyword-based local demo; no AI service connected.";
+      setAuthMode($("#auth-form").dataset.mode || "login");
+      updateDashboard();
+      if (state.latestResult) renderResult(analyzeMessage(state.latestResult.message), false);
+    }
+    function showView(view) {
+      const isAdmin = state.profile?.role === "admin";
+      const adminViews = ["dashboard", "admin-reports", "scam-database", "admin-users", "admin-insights"];
+      const userViews = ["home", "analyzer", "results", "history", "url-scanner", "awareness", "profile"];
+      if (!state.authUser && view !== "auth") view = "auth";
+      else if (state.authUser && adminViews.includes(view) && !isAdmin) view = "home";
+      else if (state.authUser && userViews.includes(view) && isAdmin) view = "dashboard";
+      const page = $(`#page-${view}`);
+      if (!page) return;
+      $$('.page').forEach(item => item.classList.toggle("active", item === page));
+      $$('[data-view]').forEach(button => button.classList.toggle("active", button.dataset.view === view));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function setAuthMode(mode) {
+      const registering = mode === "register";
+      const adminMode = mode === "admin";
+      const layout = $("#page-auth .auth-layout");
+      const story = $(".auth-story", layout);
+      const previousLeft = story.getBoundingClientRect().left;
+      const form = $("#auth-form");
+      form.dataset.mode = registering ? "register" : adminMode ? "admin" : "login";
+      layout.classList.toggle("registering", registering);
+      $("#auth-name-field").hidden = !registering;
+      $("#auth-confirm-field").hidden = !registering;
+      $("#auth-name").required = registering;
+      $("#auth-confirm").required = registering;
+      $("#auth-password").autocomplete = registering ? "new-password" : "current-password";
+      $("#auth-form-title").textContent = t(registering ? "register" : adminMode ? "adminLoginTitle" : "welcomeBack");
+      $("#auth-form-subtitle").textContent = t(registering ? "registerSubtitle" : adminMode ? "adminLoginSubtitle" : "loginSubtitle");
+      $("#auth-submit").textContent = t(registering ? "createAccount" : adminMode ? "adminLoginButton" : "login");
+      $$('[data-auth-mode]').forEach(button => {
+        if (button.closest(".auth-mode-switch")) {
+          const active = button.dataset.authMode === mode;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", String(active));
+        }
+      });
+      const movement = previousLeft - story.getBoundingClientRect().left;
+      if (Math.abs(movement) > 1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        story.animate(
+          [{ transform: `translateX(${movement}px)` }, { transform: "translateX(0)" }],
+          { duration: 420, easing: "cubic-bezier(.2,.75,.25,1)" }
+        );
+      }
+    }
+    function updateAuthActions() {
+      const signedIn = Boolean(state.authUser);
+      const role = state.profile?.role || "user";
+      $("#app-header").hidden = !signedIn;
+      $("#feature-navigation").hidden = !signedIn;
+      $$("#app-header [data-role]").forEach(button => { button.hidden = button.dataset.role !== role; });
+      $("#logout-button").hidden = !signedIn;
+      $("#profile-name").textContent = state.profile?.display_name || "";
+      $("#profile-email").textContent = state.authUser?.email || "";
+      $("#profile-role").textContent = role === "admin" ? t("adminRole") : t("userRole");
+      $("[data-action='invite-admin']").hidden = role !== "admin";
+    }
+    function normalizeMessage(message) { return message.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
+    function detectScamType(text) {
+      const patterns = [
+        ["typePrize", /\b(won|winner|prize|lottery|claim your prize|zawadi|umeshinda|bahati nasibu)\b/],
+        ["typeJob", /\b(job offer|work from home|task job|recruitment|employment|kazi ya nyumbani|ajira)\b/],
+        ["typeDelivery", /\b(delivery|parcel|package|courier|shipment|usafirishaji|kifurushi)\b/],
+        ["typeInvestment", /\b(crypto|cryptocurrency|investment|invest now|guaranteed returns|sarafu ya kidijitali|uwekezaji)\b/],
+        ["typeRomance", /\b(dating|romance|relationship|lover|mpenzi|mahusiano)\b/],
+        ["typeBank", /\b(bank|banking|account|mpesa|m-pesa|mobile money|benki|akaunti)\b/],
+        ["typeCredential", /\b(password|passcode|pin|one.time code|verification code|otp|login|sign in|nywila|nambari ya siri)\b/],
+        ["typeImpersonation", /\b(police|government|tax office|support team|official department|polisi|serikali|mamlaka)\b/]
+      ];
+      return patterns.find(([, pattern]) => pattern.test(text))?.[0] || "typeOther";
+    }
+    function scanUrls(message) {
+      const candidates = message.match(/(?:https?:\/\/|www\.)[^\s<>"']+|\b(?:bit\.ly|tinyurl\.com|t\.co|rb\.gy)\/[^\s<>"']+/gi) || [];
+      const shorteners = new Set(["bit.ly", "tinyurl.com", "t.co", "rb.gy"]);
+      const riskyTlds = new Set(["click", "country", "gq", "link", "loan", "mov", "top", "work", "xyz", "zip"]);
+      return [...new Set(candidates.map(value => value.replace(/[),.;!?\]}]+$/g, "")))].map(value => {
+        const candidate = value.startsWith("www.") || !/^https?:\/\//i.test(value) ? `https://${value}` : value;
+        const reasons = [];
+        try {
+          const url = new URL(candidate);
+          const host = url.hostname.toLowerCase().replace(/^www\./, "");
+          if (url.protocol !== "https:") reasons.push("urlWarnHttp");
+          if (shorteners.has(host)) reasons.push("urlWarnShortener");
+          if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host) || /^\[[\da-f:]+\]$/i.test(host)) reasons.push("urlWarnIp");
+          if (/(^|\.)xn--/i.test(host)) reasons.push("urlWarnPunycode");
+          if (host.split(".").length > 4) reasons.push("urlWarnLong");
+          if (riskyTlds.has(host.split(".").pop())) reasons.push("urlWarnSuspiciousTld");
+        } catch { reasons.push("urlWarnHttp"); }
+        return { value, reasons };
+      });
+    }
+    function scanPhoneNumbers(message) {
+      const candidates = message.match(/(?<!\w)\+?\d[\d\s().-]{6,}\d(?!\w)/g) || [];
+      const found = new Map();
+      candidates.forEach(candidate => {
+        const value = candidate.trim().replace(/[.,;:]+$/g, "");
+        if (/^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$/.test(value)) return;
+        const digits = value.replace(/\D/g, "");
+        if (digits.length < 7 || digits.length > 15) return;
+        const normalized = `${value.startsWith("+") ? "+" : ""}${digits}`;
+        found.set(normalized, { value, validFormat: digits.length >= 7 && digits.length <= 15 });
+      });
+      return [...found.values()];
+    }
+    function analyzeMessage(message) {
+      const text = message.toLowerCase();
+      const signals = [];
+      const include = (test, title, body, strength) => { if (test) signals.push({ title: t(title), body: t(body), strength }); };
+      const urlChecks = scanUrls(message);
+      const phoneChecks = scanPhoneNumbers(message);
+      const normalized = normalizeMessage(message);
+      const previousCase = state.history.find(item => normalizeMessage(item.message || "") === normalized);
+      const sw = state.lang === "sw" || /\b(tuma pesa|akaunti yako|nambari ya siri|zawadi|bonyeza|haraka sana|ada ya usafirishaji|umeshinda|uthibitishe|lipa sasa)\b/i.test(text);
+      const urgency = /\b(urgent|immediately|act now|within 24 hours|today only|final warning|suspended|expire|limited time|haraka|mara moja|sasa hivi|leo tu|akaunti.*fungwa|imefungwa|imeisha muda)\b/i.test(text);
+      const money = /\b(send money|transfer|payment|pay now|processing fee|wire|gift card|crypto|deposit|tuma pesa|lipa|malipo|ada ya|fedha|pesa|gharama ya usafirishaji)\b/i.test(text);
+      const secret = /\b(password|passcode|pin|one.time code|verification code| otp|bank details|nambari ya siri|nywila|msimbo wa uthibitisho|taarifa za akaunti)\b/i.test(text);
+      const link = urlChecks.length > 0;
+      const prize = /\b(you('ve| have) won|winner|claim your prize|free gift|congratulations|umeshinda|zawadi|bahati nasibu|zawadi yako)\b/i.test(text);
+      const threat = /\b(account.*(locked|suspended|closed)|arrest|legal action|police|kufungwa kwa akaunti|akaunti.*(imefungwa|imesimamishwa)|kukamatwa|hatua za kisheria)\b/i.test(text);
+      include(urgency, "signalUrgency", "signalUrgencyBody", 18);
+      include(money, "signalMoney", "signalMoneyBody", 25);
+      include(secret, "signalSecret", "signalSecretBody", 30);
+      include(link, "signalLink", "signalLinkBody", 20);
+      include(prize, "signalPrize", "signalPrizeBody", 23);
+      include(threat, "signalThreat", "signalThreatBody", 20);
+      if (!signals.length && text.length < 5000) signals.push({ title: t("signalNoStrong"), body: t("signalNoStrongBody"), strength: 0, safe: true });
+      let score = Math.min(98, signals.reduce((sum, signal) => sum + signal.strength, 0));
+      if (sw && signals.length && score < 22) score = 28;
+      const level = score >= 55 ? "high" : score >= 25 ? "medium" : "low";
+      const title = level === "high" ? t("highRiskTitle") : level === "medium" ? t("mediumRisk") : t("lowRisk");
+      const summary = level === "high" ? t("highSummary") : level === "medium" ? t("mediumSummary") : t("lowSummary");
+      const advice = level === "high" ? t("adviceHigh") : level === "medium" ? t("adviceMedium") : t("adviceLow");
+      return { message, score, level, title, summary, advice, signals, scamType: detectScamType(text), urlChecks, phoneChecks, previousMatch: previousCase?.date || null };
+    }
+    function formatDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat(state.lang === "sw" ? "sw-KE" : "en", { dateStyle: "medium", timeStyle: "short" }).format(date);
+    }
+    function renderCheckList(container, entries, emptyKey, describe) {
+      container.replaceChildren();
+      if (!entries.length) {
+        const empty = document.createElement("small"); empty.className = "input-help"; empty.textContent = t(emptyKey); container.append(empty); return;
+      }
+      entries.forEach(entry => {
+        const row = document.createElement("div"); row.className = "check-entry";
+        const value = document.createElement("strong"); value.textContent = entry.value;
+        const details = document.createElement("small"); details.textContent = describe(entry);
+        row.append(value, details); container.append(row);
+      });
+    }
+    function renderResult(result, save = true) {
+      state.latestResult = result;
+      const color = result.level === "high" ? "#bc5943" : result.level === "medium" ? "#b47b18" : "#267358";
+      const banner = $("#result-banner");
+      banner.style.setProperty("--risk-color", color);
+      banner.style.setProperty("--risk-deg", `${result.score * 3.6}deg`);
+      $("#risk-score").textContent = result.score;
+      $("#risk-title").textContent = result.title;
+      $("#risk-summary").textContent = result.summary;
+      $("#quoted-message").textContent = result.message;
+      $("#risk-advice").textContent = result.advice;
+      $("#scam-type-result").textContent = t(result.scamType || "typeOther");
+      const historyMatch = $("#history-match");
+      historyMatch.hidden = !result.previousMatch;
+      historyMatch.textContent = result.previousMatch ? `${t("previousMatch")} ${formatDate(result.previousMatch)}` : "";
+      renderCheckList($("#url-results"), result.urlChecks || [], "urlNone", check => `${check.reasons.length ? `${t("urlReview")}: ${check.reasons.map(t).join(" ")}` : t("urlUnverified")}`);
+      renderCheckList($("#phone-results"), result.phoneChecks || [], "phoneNone", check => `${t(check.validFormat ? "phoneValid" : "phoneInvalid")} ${t("phoneNoLookup")}`);
+      $("#signal-count").textContent = `${result.signals.length} ${t("signals")}`;
+      const list = $("#signal-list");
+      list.replaceChildren();
+      result.signals.forEach(signal => {
+        const row = document.createElement("div"); row.className = "signal-row";
+        const icon = document.createElement("span"); icon.className = `signal-check${signal.safe ? " safe" : ""}`; icon.innerHTML = `<i class="bi ${signal.safe ? "bi-check2" : "bi-exclamation"}"></i>`;
+        const copy = document.createElement("div"); const title = document.createElement("strong"); title.textContent = signal.title; const body = document.createElement("p"); body.textContent = signal.body; copy.append(title, body); row.append(icon, copy); list.append(row);
+      });
+      if (save) {
+        saveCase(result);
+      }
+      updateDashboard(); showView("results");
+    }
+    async function saveCase(result) {
+      if (!state.authUser) return;
+      try {
+        const { item } = await apiRequest("/api/cases", {
+          method: "POST",
+          body: {
+            message: result.message,
+            score: result.score,
+            risk_level: result.level,
+            scam_type: result.scamType,
+            signals: result.signals,
+            url_checks: result.urlChecks,
+            phone_checks: result.phoneChecks
+          }
+        });
+        const saved = { ...item, scamType: item.scam_type, urlChecks: item.url_checks, phoneChecks: item.phone_checks, level: item.risk_level, date: new Date(item.created_at).getTime() };
+        state.history.unshift(saved);
+        state.checks.unshift({ level: saved.level, score: saved.score, date: saved.date });
+      } catch (error) {
+        toast(error.message || t("caseSaveFailed"));
+      }
+      result.id = saved.id;
+      result.date = saved.date;
+      updateDashboard();
+      toast(t("caseSaved"));
+    }
+    function runAnalysis(fieldId) {
+      const message = $(`#${fieldId}`).value.trim();
+      if (!message) { toast(t("enterMessage")); $(`#${fieldId}`).focus(); return; }
+      state.currentMessage = message;
+      renderResult(analyzeMessage(message));
+    }
+    function updateHistory() {
+      const list = $("#history-list");
+      list.replaceChildren();
+      $("#history-count").textContent = state.history.length;
+      if (!state.history.length) {
+        const empty = document.createElement("p"); empty.className = "input-help"; empty.textContent = t("historyEmpty"); list.append(empty); return;
+      }
+      state.history.slice(0, 100).forEach(record => {
+        const row = document.createElement("div"); row.className = "history-row";
+        const description = document.createElement("div");
+        const title = document.createElement("strong"); title.textContent = t(record.scamType || "typeOther");
+        const detail = document.createElement("small"); detail.textContent = `${formatDate(record.date)} · ${record.message.slice(0, 90)}`;
+        description.append(title, detail);
+        const risk = document.createElement("span"); risk.className = "history-risk"; risk.style.setProperty("--risk-color", record.level === "high" ? "#bc5943" : record.level === "medium" ? "#b47b18" : "#267358"); risk.textContent = `${record.score}/100`;
+        const review = document.createElement("button"); review.type = "button"; review.className = "btn btn-outline-app"; review.dataset.historyId = record.id; review.textContent = t("historyReview");
+        row.append(description, risk, review); list.append(row);
+      });
+    }
+    function updateDashboard() {
+      updateHistory();
+      if (state.profile?.role === "admin") renderAdminSections();
+      $("#metric-checks").textContent = state.checks.length;
+      $("#metric-high").textContent = state.checks.filter(item => item.level === "high").length;
+      $("#metric-reports").textContent = state.reports.length;
+      $("#report-total").textContent = state.reports.length;
+      $("#metric-users").textContent = state.profiles.length;
+      const labels = t("chartLabels");
+      const recent = state.checks.slice(0, 7).reverse();
+      const bars = $("#chart-bars"); bars.replaceChildren();
+      labels.forEach((label, index) => {
+        const day = recent[index]; const group = document.createElement("div"); group.className = "chart-group";
+        const bar = document.createElement("span"); bar.className = "bar"; bar.style.height = `${day ? Math.max(9, Math.min(100, day.score)) : 8}%`; bar.title = day ? `${day.score}% risk` : "No check";
+        const small = document.createElement("small"); small.textContent = label; group.append(bar, small); bars.append(group);
+      });
+      const list = $("#activity-list"); list.replaceChildren();
+      if (!state.reports.length) {
+        const empty = document.createElement("div"); empty.className = "activity-item"; empty.innerHTML = `<span class="activity-icon"><i class="bi bi-inbox"></i></span><div><strong>${t("noReportsYet")}</strong><small>${t("reportsAppear")}</small></div>`; list.append(empty); return;
+      }
+      state.reports.slice(0, 4).forEach(report => {
+        const item = document.createElement("div"); item.className = "activity-item";
+        const icon = document.createElement("span"); icon.className = "activity-icon"; icon.innerHTML = '<i class="bi bi-flag"></i>';
+        const copy = document.createElement("div"); const title = document.createElement("strong"); title.textContent = report.scam_type; const detail = document.createElement("small"); detail.textContent = report.details.slice(0, 54); copy.append(title, detail);
+        const badge = document.createElement("span"); badge.className = "status-pill"; badge.textContent = t(`status${report.status[0].toUpperCase()}${report.status.slice(1).replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())}`); item.append(icon, copy, badge); list.append(item);
+      });
+    }
+    function createEmptyState(container, messageKey = "noData") {
+      container.replaceChildren();
+      const message = document.createElement("p"); message.className = "input-help"; message.textContent = t(messageKey); container.append(message);
+    }
+    function renderAdminSections() {
+      const users = $("#admin-users-list");
+      users.replaceChildren();
+      state.profiles.forEach(profile => {
+        const row = document.createElement("div"); row.className = "history-row";
+        const identity = document.createElement("div");
+        const name = document.createElement("strong"); name.textContent = profile.display_name || profile.email;
+        const email = document.createElement("small"); email.textContent = profile.email;
+        identity.append(name, email);
+        const role = document.createElement("span"); role.className = "status-pill"; role.textContent = t(profile.role === "admin" ? "adminRole" : "userRole");
+        row.append(identity, role); users.append(row);
+      });
+      if (!state.profiles.length) createEmptyState(users);
+
+      const reports = $("#admin-reports-list");
+      reports.replaceChildren();
+      state.reports.forEach(report => {
+        const owner = state.profiles.find(profile => profile.id === report.user_id)?.email || report.user_id;
+        const row = document.createElement("div"); row.className = "history-row";
+        const description = document.createElement("div");
+        const title = document.createElement("strong"); title.textContent = report.scam_type;
+        const detail = document.createElement("small"); detail.textContent = `${t("reportedBy")}: ${owner} · ${formatDate(report.created_at)} · ${report.details}`;
+        description.append(title, detail);
+        const status = document.createElement("select"); status.className = "form-select report-status"; status.dataset.reportId = report.id; status.setAttribute("aria-label", t("updateStatus"));
+        [["open", "statusOpen"], ["reviewing", "statusReviewing"], ["confirmed", "statusConfirmed"], ["false_positive", "statusFalsePositive"], ["closed", "statusClosed"]].forEach(([value, key]) => { const option = document.createElement("option"); option.value = value; option.textContent = t(key); option.selected = report.status === value; status.append(option); });
+        row.append(description, status); reports.append(row);
+      });
+      if (!state.reports.length) createEmptyState(reports);
+
+      const cases = $("#admin-cases-list");
+      cases.replaceChildren();
+      state.history.forEach(record => {
+        const owner = state.profiles.find(profile => profile.id === record.user_id)?.email || record.user_id;
+        const row = document.createElement("div"); row.className = "history-row";
+        const detail = document.createElement("div"); const title = document.createElement("strong"); title.textContent = t(record.scamType || "typeOther"); const message = document.createElement("small"); message.textContent = `${owner} · ${formatDate(record.date)} · ${record.message.slice(0, 100)}`; detail.append(title, message);
+        const score = document.createElement("span"); score.className = "history-risk"; score.textContent = `${record.score}/100`;
+        row.append(detail, score); cases.append(row);
+      });
+      if (!state.history.length) createEmptyState(cases);
+
+      const trendCounts = state.reports.reduce((counts, report) => { counts[report.scam_type] = (counts[report.scam_type] || 0) + 1; return counts; }, {});
+      const trends = $("#admin-trends-list"); trends.replaceChildren();
+      Object.entries(trendCounts).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => { const row = document.createElement("div"); row.className = "activity-item"; const title = document.createElement("strong"); title.textContent = name; const total = document.createElement("span"); total.className = "status-pill"; total.textContent = count; row.append(title, total); trends.append(row); });
+      if (!Object.keys(trendCounts).length) createEmptyState(trends);
+
+      const performance = $("#admin-performance-list"); performance.replaceChildren();
+      const reviewed = state.reports.filter(report => ["confirmed", "false_positive", "closed"].includes(report.status)).length;
+      [["casesReviewed", reviewed], ["confirmedCases", state.reports.filter(report => report.status === "confirmed").length], ["falsePositiveCases", state.reports.filter(report => report.status === "false_positive").length]].forEach(([key, value]) => { const row = document.createElement("div"); row.className = "activity-item"; const label = document.createElement("strong"); label.textContent = t(key); const count = document.createElement("span"); count.className = "status-pill"; count.textContent = value; row.append(label, count); performance.append(row); });
+    }
+    function toast(message) {
+      $("#toast-message").textContent = message;
+      if (window.bootstrap) bootstrap.Toast.getOrCreateInstance($("#app-toast"), { delay: 2800 }).show(); else window.alert(message);
+    }
+    $$("[data-view]").forEach(button => button.addEventListener("click", () => showView(button.dataset.view)));
+    $$('[data-go]').forEach(button => button.addEventListener("click", () => showView(button.dataset.go)));
+    $$('[data-auth-mode]').forEach(button => button.addEventListener("click", () => setAuthMode(button.dataset.authMode)));
+    $$('[data-lang]').forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.lang)));
+    $$('[data-analyze]').forEach(button => button.addEventListener("click", () => runAnalysis(button.dataset.analyze)));
+    $$('[data-report-open]').forEach(button => button.addEventListener("click", () => {
+      if (state.latestResult) {
+        const reportType = { typeBank: "Bank impersonation", typeCredential: "Bank impersonation", typeJob: "Job offer", typeDelivery: "SMS / messaging" }[state.latestResult.scamType] || "Other";
+        $("#report-type").value = reportType;
+        $("#report-details").value = `${state.latestResult.message.slice(0, 360)}\n\n${t("scamTypeTitle")}: ${t(state.latestResult.scamType)} | ${t("scoreLabel")}: ${state.latestResult.score}/100`;
+      }
+      bootstrap.Modal.getOrCreateInstance($("#report-modal")).show();
+    }));
+    $("#url-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const raw = $("#url-input").value.trim();
+      let url;
+      try { url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`); } catch { toast(t("urlInvalid")); return; }
+      if (!/[.:]/.test(url.hostname) || !["http:", "https:"].includes(url.protocol)) { toast(t("urlInvalid")); return; }
+      const results = scanUrls(url.href);
+      const previous = state.history.some(record => (record.urlChecks || []).some(check => normalizeMessage(check.value) === normalizeMessage(url.href)));
+      if (previous && results[0]) results[0].reasons.push("previousMatch");
+      renderCheckList($("#single-url-result"), results, "urlNone", check => `${check.reasons.length ? `${t("urlReview")}: ${check.reasons.map(t).join(" ")}` : t("urlUnverified")}`);
+    });
+    $("#phone-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const value = $("#phone-input").value.trim();
+      const number = scanPhoneNumbers(value)[0];
+      if (!number) { toast(t("phoneInvalid")); return; }
+      const normalized = number.value.replace(/\D/g, "");
+      const previous = state.history.find(record => (record.phoneChecks || []).some(check => check.value.replace(/\D/g, "") === normalized));
+      const results = [{ ...number, previous: Boolean(previous) }];
+      renderCheckList($("#single-phone-result"), results, "phoneNone", check => `${t(check.validFormat ? "phoneValid" : "phoneInvalid")} ${t("phoneNoLookup")}${check.previous ? ` ${t("previousMatch")}` : ""}`);
+    });
+    $("#admin-reports-list").addEventListener("change", async event => {
+      const select = event.target.closest("[data-report-id]");
+      if (!select || state.profile?.role !== "admin") return;
+      try {
+        await apiRequest(`/api/admin/reports/${select.dataset.reportId}`, { method: "PATCH", body: { status: select.value } });
+        const report = state.reports.find(item => String(item.id) === select.dataset.reportId);
+        if (report) report.status = select.value;
+        updateDashboard();
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("#admin-invite-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (state.profile?.role !== "admin") { toast(t("adminOnly")); return; }
+      const form = event.currentTarget;
+      try {
+        await apiRequest("/api/admin/promote", { method: "POST", body: { email: $("#admin-invite-email").value.trim() } });
+        form.reset();
+        toast(t("inviteSent"));
+        await loadAccountData();
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("[data-action='invite-admin']").addEventListener("click", () => showView("admin-users"));
+    $("[data-action='delete-own-history']").addEventListener("click", async () => {
+      if (!state.authUser) return;
+      try {
+        await apiRequest("/api/cases", { method: "DELETE" });
+        state.history = []; state.checks = []; updateDashboard(); toast(t("historyCleared"));
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("#history-list").addEventListener("click", event => {
+      const button = event.target.closest("[data-history-id]");
+      const record = state.history.find(item => item.id === button?.dataset.historyId);
+      if (record) { const result = analyzeMessage(record.message); result.previousMatch = null; result.id = record.id; result.date = record.date; renderResult(result, false); }
+    });
+    let liveAnalysisTimer;
+    function updateLiveAnalysis(message) {
+      const result = analyzeMessage(message);
+      const preview = $("#live-analysis");
+      const color = result.level === "high" ? "#bc5943" : result.level === "medium" ? "#b47b18" : "#267358";
+      preview.style.setProperty("--risk-color", color);
+      preview.textContent = `${t("riskLevel")}: ${result.title} · ${t("scoreLabel")}: ${result.score}/100`;
+      preview.hidden = false;
+    }
+    $("#analyzer-message").addEventListener("input", event => {
+      const message = event.target.value.trim();
+      $("#char-count").textContent = `${event.target.value.length} / 5000`;
+      window.clearTimeout(liveAnalysisTimer);
+      if (!message) { $("#live-analysis").hidden = true; return; }
+      liveAnalysisTimer = window.setTimeout(() => updateLiveAnalysis(message), 450);
+    });
+    const examples = {
+      urgent:"URGENT: Your bank account will be suspended today. Verify your PIN now at https://bit.ly/verify-account or access will be blocked.",
+      prize:"Congratulations! You have won a free gift. Pay a small processing fee now to claim your prize: www.claim-reward.example",
+      safe:"Your delivery is scheduled for tomorrow between 10:00 and 12:00. Track your parcel in the courier app you already use."
+    };
+    $$('[data-example]').forEach(button => button.addEventListener("click", () => {
+      $("#analyzer-message").value = examples[button.dataset.example];
+      $("#analyzer-message").dispatchEvent(new Event("input", { bubbles: true }));
+    }));
+    $("#auth-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const registering = form.dataset.mode === "register";
+      const email = $("#auth-email").value.trim().toLowerCase();
+      const password = $("#auth-password").value;
+      const submitButton = $("#auth-submit");
+      submitButton.disabled = true;
+      try {
+        if (registering) {
+          if (password !== $("#auth-confirm").value) { $("#auth-confirm").setCustomValidity(t("passwordMismatch")); $("#auth-confirm").reportValidity(); $("#auth-confirm").setCustomValidity(""); return; }
+          const { profile } = await apiRequest("/api/auth/register", { method: "POST", body: { email, password, display_name: $("#auth-name").value.trim() } });
+          form.reset();
+          setAuthMode("login");
+          await activateUser(profile);
+          toast(t("accountCreated"));
+        } else {
+          const { profile } = await apiRequest("/api/auth/login", { method: "POST", body: { email, password, admin: form.dataset.mode === "admin" } });
+          form.reset();
+          await activateUser(profile);
+          toast(t("loginSuccess"));
+        }
+      } catch (error) {
+        toast(error.message || t("profileLoadFailed"));
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+    $("#logout-button").addEventListener("click", async () => {
+      try {
+        await apiRequest("/api/auth/logout", { method: "POST" });
+      } catch (error) {
+        toast(error.message);
+      }
+      state.authUser = null; state.profile = null; state.history = []; state.reports = []; state.checks = []; state.profiles = [];
+      updateAuthActions(); updateDashboard(); showView("auth");
+    });
+    $("#report-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      if (!state.authUser) { showView("auth"); return; }
+      try {
+        const { item } = await apiRequest("/api/reports", { method: "POST", body: { case_id: state.latestResult?.id || null, scam_type: $("#report-type").value, details: $("#report-details").value.trim() } });
+        state.reports.unshift(item); updateDashboard(); form.reset(); bootstrap.Modal.getOrCreateInstance($("#report-modal")).hide(); toast(t("reportSaved"));
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("#copy-report").addEventListener("click", async () => {
+      const text = `${t("scoreLabel")}: ${state.latestResult?.score ?? 0}/100 - ${state.latestResult?.title ?? ""}\n${state.latestResult?.summary ?? ""}\n${state.latestResult?.advice ?? ""}`;
+      try { await navigator.clipboard.writeText(text); toast(t("copied")); } catch { toast(t("copyFail")); }
+    });
+    setLanguage("en"); setAuthMode("login"); updateAuthActions(); updateDashboard(); restoreSession();
+  </script>
+</body>
+</html>
