@@ -1,0 +1,4 @@
+# Previous Vite + Express version, kept in the repo for reference only. It is not deployed.
+legacy/
+tests/
+supabase/
