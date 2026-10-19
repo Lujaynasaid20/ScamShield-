@@ -12,18 +12,25 @@ export const POST = withAuthLimit(route(async request => {
   if (password.length < 8 || password.length > 200) return json({ error: "Password must be at least 8 characters." }, 400);
 
   const passwordHash = await bcrypt.hash(password, 12);
+  // One transaction, so a failure part-way never leaves an account that can't be used or re-registered.
   let profile;
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
+    await client.query("begin");
+    const result = await client.query(
       "insert into profiles (email, display_name, password_hash) values ($1, $2, $3) returning id, email, display_name, role, totp_enabled, created_at",
       [email, displayName, passwordHash]
     );
     profile = result.rows[0];
+    await client.query("insert into user_preferences (user_id) values ($1) on conflict do nothing", [profile.id]);
+    await client.query("commit");
   } catch (error) {
+    await client.query("rollback");
     if (error.code === "23505") return json({ error: "An account with this email already exists." }, 409);
     throw error;
+  } finally {
+    client.release();
   }
-  await pool.query("insert into user_preferences (user_id) values ($1) on conflict do nothing", [profile.id]);
   await createSession(profile, request);
   await audit("account_created", { userId: profile.id, actorId: profile.id });
   return json({ profile: publicProfile(profile) }, 201);
