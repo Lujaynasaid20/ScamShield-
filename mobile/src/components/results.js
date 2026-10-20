@@ -12,7 +12,10 @@ const ICONS = {
   "bi-bank": "business-outline", "bi-receipt": "receipt-outline", "bi-slash-circle": "ban-outline", "bi-shield-lock": "lock-closed-outline",
   "bi-download": "download-outline", "bi-pause-circle": "pause-circle-outline", "bi-eye": "eye-outline", "bi-mortarboard": "school-outline",
   "bi-telephone-x": "call-outline", "bi-patch-check": "checkmark-done-circle-outline", "bi-exclamation-octagon": "alert-circle-outline",
-  "bi-flag": "flag-outline", "bi-search": "search-outline", "bi-person-dash": "person-remove-outline"
+  "bi-flag": "flag-outline", "bi-search": "search-outline", "bi-person-dash": "person-remove-outline",
+  "bi-briefcase": "briefcase-outline", "bi-phone": "phone-portrait-outline", "bi-gift": "gift-outline", "bi-person-badge": "id-card-outline",
+  "bi-heart": "heart-outline", "bi-graph-up-arrow": "trending-up-outline", "bi-people": "people-outline", "bi-bag": "bag-handle-outline",
+  "bi-activity": "pulse-outline"
 };
 export const icon = name => ICONS[name] || "shield-checkmark-outline";
 
@@ -37,7 +40,8 @@ function ResultHeader({ item, title, summary, badge }) {
   );
 }
 
-export function ActionCenter({ recommendations }) {
+export function ActionCenter({ recommendations, report }) {
+  const router = useRouter();
   if (!recommendations) return null;
   const tone = recommendations.severity === "high" ? "danger" : recommendations.severity === "medium" ? "warn" : "safe";
   return (
@@ -55,6 +59,7 @@ export function ActionCenter({ recommendations }) {
           </View>
         </View>
       ))}
+      {!!report && <Button title="Report this incident" icon="flag-outline" onPress={() => router.push(report)} style={s.reportButton} />}
     </View>
   );
 }
@@ -107,7 +112,7 @@ export function MessageResult({ item, result }) {
     <View style={s.stack}>
       <ResultHeader item={item} title={title} summary={result?.explanation || details.explanation}
         badge={needsReview ? <Badge tone="warn" icon="warning" label="Suspicious / Needs Review" /> : null} />
-      <ActionCenter recommendations={details.recommendations} />
+      <ActionCenter recommendations={details.recommendations} report={item.id ? { pathname: "/reports/new", params: { case: item.id } } : null} />
       <Card>
         <Heading level={2}>Why it was rated this way</Heading>
         {!!confidence && <Notice icon="speedometer-outline"><Text style={s.noticeText}><Text style={s.bold}>Confidence: {confidence}. </Text>{CONFIDENCE_TEXT[confidence]}</Text></Notice>}
@@ -171,7 +176,7 @@ export function UrlResult({ item }) {
   return (
     <View style={s.stack}>
       <ResultHeader item={item} title={title} summary={details.explanation} />
-      <ActionCenter recommendations={details.recommendations} />
+      <ActionCenter recommendations={details.recommendations} report={item.id ? { pathname: "/reports/new", params: { case: item.id } } : null} />
       <Card>
         <Body small muted>Link scanned</Body>
         <Text style={s.mono} selectable>{item.input}</Text>
@@ -244,7 +249,7 @@ export function SenderResult({ item, result }) {
           ))}
         </Card>
       )}
-      <ActionCenter recommendations={details.recommendations} />
+      <ActionCenter recommendations={details.recommendations} report={{ pathname: "/reports/new", params: { sender_type: details.type, sender_value: item.input } }} />
       <Card>
         <Heading level={2}>Sender details</Heading>
         <Fact label={isPhone ? "Number entered" : "Checked"}><Text style={s.mono} selectable>{item.input}</Text></Fact>
@@ -332,6 +337,7 @@ const s = StyleSheet.create({
   stepTitle: { color: "#fff", fontSize: 15, fontWeight: "700" },
   stepBadge: { marginVertical: 4 },
   stepBody: { color: "#c9d5f0", fontSize: 14, lineHeight: 20 },
+  reportButton: { marginTop: space.sm },
   fact: { gap: 4, paddingVertical: space.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
   factLabel: { fontSize: 13, fontWeight: "700", color: colors.muted },
   status: { gap: 4, paddingVertical: space.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line }

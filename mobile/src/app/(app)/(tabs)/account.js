@@ -1,25 +1,24 @@
 import Constants from "expo-constants";
-import * as WebBrowser from "expo-web-browser";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { API_URL } from "@/api/client";
 import { useSession } from "@/auth/session";
-import { Body, Button, Card, Heading, Notice, Row, Screen } from "@/components/ui";
+import { Badge, Body, Button, Card, Heading, Notice, Row, Screen } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 import { colors, space } from "@/theme";
 
 export default function AccountScreen() {
+  const router = useRouter();
   const { profile, signOut, refreshProfile } = useSession();
   const [refreshing, setRefreshing] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const go = path => () => router.push(path);
 
   const refresh = async () => {
     setRefreshing(true);
     try { await refreshProfile(); } catch (error) { Alert.alert("Couldn't refresh", error.message); } finally { setRefreshing(false); }
   };
-
-  // Opens our own website in an in-app browser tab (not a link from a message, so it's safe to open).
-  const openWebsite = path => WebBrowser.openBrowserAsync(`${API_URL}${path}`).catch(() => Alert.alert("Couldn't open the website", "Check your connection and try again."));
 
   const confirmSignOut = () => Alert.alert("Log out?", "You'll need your email and password to log in again on this phone.", [
     { text: "Cancel", style: "cancel" },
@@ -39,13 +38,26 @@ export default function AccountScreen() {
             </View>
           </View>
         ) : <Notice tone="warn" icon="cloud-offline-outline">Your profile couldn't be loaded. Pull down to try again.</Notice>}
-        {!!(profile && !profile.totp_enabled) && <Notice tone="warn" icon="lock-open-outline">Two-factor authentication is off. Turn it on from the website's security settings to protect your account.</Notice>}
+      </Card>
+      <Card>
+        <Heading level={2}>Activity</Heading>
+        <Row icon="time-outline" title="Scam history" subtitle="Messages, links and senders you've checked" onPress={go("/history")} />
+        <Row icon="notifications-outline" title="Notifications" subtitle="Results, report updates and scam alerts" onPress={go("/notifications")} />
+        <Row icon="school-outline" title="Scam Awareness Academy" subtitle="Short lessons and quizzes" onPress={go("/academy")} />
       </Card>
       <Card>
         <Heading level={2}>Account and security</Heading>
-        <Body small muted>Profile, password, two-factor authentication, signed-in devices and privacy settings are managed on the website for now. Log in there with the same account.</Body>
-        <Row icon="settings-outline" title="Settings on the website" subtitle="Profile, password and preferences" onPress={() => openWebsite("/settings")} />
-        <Row icon="phone-portrait-outline" title="Signed-in devices" subtitle="See or sign out this phone from the website" onPress={() => openWebsite("/settings#security")} />
+        <Row icon="person-outline" title="Profile" subtitle="Name and email" onPress={go("/settings/profile")} />
+        <Row icon="key-outline" title="Change password" onPress={go("/settings/password")} />
+        <Row icon="shield-checkmark-outline" title="Two-factor authentication"
+          right={profile ? <Badge tone={profile.totp_enabled ? "safe" : "warn"} label={profile.totp_enabled ? "On" : "Off"} /> : null}
+          onPress={go("/settings/two-factor")} />
+        <Row icon="phone-portrait-outline" title="Signed-in devices" subtitle="App and website sessions" onPress={go("/settings/sessions")} />
+      </Card>
+      <Card>
+        <Heading level={2}>Privacy</Heading>
+        <Row icon="options-outline" title="Notification settings" onPress={go("/settings/notifications")} />
+        <Row icon="lock-closed-outline" title="Privacy and data" subtitle="Security activity, clear history, delete account" onPress={go("/settings/privacy")} />
       </Card>
       <Button title="Log out" icon="log-out-outline" variant="danger" busy={signingOut} onPress={confirmSignOut} />
       <Body small muted style={s.center}>ScamShield {Constants.expoConfig?.version} · {API_URL.replace(/^https?:\/\//, "")}</Body>

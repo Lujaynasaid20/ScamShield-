@@ -38,7 +38,9 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-font",
+      "expo-status-bar"
     ],
     "scheme": "scamshield",
     "backgroundColor": "#f3f6fb"

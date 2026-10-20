@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSession } from "@/auth/session";
 import { icon } from "@/components/results";
@@ -26,14 +26,27 @@ function QuickAction({ title, iconName, onPress }) {
   );
 }
 
+function Bell({ count, onPress }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={count ? `Notifications, ${count} unread` : "Notifications"} hitSlop={10} style={s.bell}>
+      <Ionicons name="notifications-outline" size={24} color={colors.ink} />
+      {count > 0 && <View style={s.bellBadge}><Text style={s.bellText}>{count > 99 ? "99+" : count}</Text></View>}
+    </Pressable>
+  );
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const { profile } = useSession();
   const { data, error, loading, refreshing, reload } = useApi("/api/overview");
-  const recommendations = (data?.recommendations || []).map(item => ({ ...item, route: appRoute(item.href) })).filter(item => item.route);
+  const unread = useApi("/api/notifications?countOnly=1");
+  const refresh = () => { reload(); unread.reload(); };
+  // The website's "Set up 2FA" link points at its settings page; here it opens the two-factor screen directly.
+  const recommendations = (data?.recommendations || []).map(item => ({ ...item, route: item.href === "/settings#security" ? "/settings/two-factor" : appRoute(item.href) })).filter(item => item.route);
 
   return (
-    <Screen refreshing={refreshing} onRefresh={reload}>
+    <Screen refreshing={refreshing} onRefresh={refresh}>
+      <Tabs.Screen options={{ headerRight: () => <Bell count={unread.data?.unread || 0} onPress={() => router.push("/notifications")} /> }} />
       <View>
         <Heading level={1}>Hello{profile?.display_name ? `, ${profile.display_name.split(" ")[0]}` : ""}</Heading>
         <Body muted>Check anything suspicious before you click, pay or reply.</Body>
@@ -57,6 +70,9 @@ export default function HomeScreen() {
               <Stat label="Senders checked" value={data.totals.senders} />
               <Stat label="Open reports" value={data.reports.open} />
             </View>
+          </Card>
+          <Card>
+            <Row icon="school-outline" title="Scam Awareness Academy" subtitle={`${data.academy.completed} of ${data.academy.total} lessons completed`} onPress={() => router.push("/academy")} />
           </Card>
           {recommendations.length > 0 && (
             <Card>
@@ -90,5 +106,8 @@ const s = StyleSheet.create({
   stat: { width: "33.33%", paddingRight: space.sm },
   statValue: { fontSize: 24, fontWeight: "800" },
   statLabel: { fontSize: 12, color: colors.muted, fontWeight: "600" },
+  bell: { marginRight: space.lg, padding: 4 },
+  bellBadge: { position: "absolute", top: -2, right: -4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: colors.dangerText, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
+  bellText: { color: "#fff", fontSize: 11, fontWeight: "800" },
   titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }
 });

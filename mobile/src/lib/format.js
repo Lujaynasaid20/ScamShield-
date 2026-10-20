@@ -24,17 +24,27 @@ export const KIND = {
 };
 
 // Website paths used in server data (notification links, recommendations) mapped to app screens.
-// Returns null when the app has no screen for it yet.
+// Returns null when the app has no screen for it.
 export function appRoute(webPath) {
   if (!webPath) return null;
-  const [path, query = ""] = webPath.split("?");
+  const [pathAndQuery] = webPath.split("#");
+  const [path, query = ""] = pathAndQuery.split("?");
   const params = new URLSearchParams(query);
-  if (path === "/overview") return "/";
+  const id = /^\/[a-z-]+\/([\w-]+)$/.exec(path)?.[1];
+  if (path === "/overview" || path === "/") return "/";
   if (path === "/analyze") return "/scan";
-  if (path === "/urls") return params.get("url") ? { pathname: "/check", params: { mode: "url", value: params.get("url") } } : { pathname: "/check", params: { mode: "url" } };
-  if (path === "/sender") return params.get("value") ? { pathname: "/check", params: { mode: "sender", value: params.get("value") } } : { pathname: "/check", params: { mode: "sender" } };
+  if (path === "/urls") return { pathname: "/check", params: { mode: "url", ...(params.get("url") ? { value: params.get("url") } : {}) } };
+  if (path === "/sender") return { pathname: "/check", params: { mode: "sender", ...(params.get("value") ? { value: params.get("value") } : {}) } };
   if (path === "/history") return "/history";
-  const history = /^\/history\/(\d+)$/.exec(path);
-  if (history) return { pathname: "/history/[id]", params: { id: history[1] } };
+  if (/^\/history\/\d+$/.test(path)) return { pathname: "/history/[id]", params: { id } };
+  if (path === "/reports") return "/reports";
+  if (path === "/reports/new") return "/reports/new";
+  if (/^\/reports\/\d+$/.test(path)) return { pathname: "/reports/[id]", params: { id } };
+  if (path === "/notifications") return "/notifications";
+  if (path === "/academy") return "/academy";
+  if (/^\/academy\/[\w-]+$/.test(path)) return { pathname: "/academy/[id]", params: { id } };
+  if (path === "/settings") return "/account";
   return null;
 }
+
+export const formatBytes = bytes => (bytes < 1024 ? `${bytes} B` : bytes < 1048576 ? `${(bytes / 1024).toFixed(0)} KB` : `${(bytes / 1048576).toFixed(1)} MB`);

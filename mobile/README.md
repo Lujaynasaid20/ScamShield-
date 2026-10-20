@@ -38,9 +38,10 @@ npm run export:check            # bundles Android and iOS to catch build errors
 ## Structure
 
 ```
-src/app/              screens (Expo Router): login, register, (app)/(tabs)/{index,scan,check,history,account}, (app)/history/[id]
+src/app/              screens (Expo Router): login, register, (app)/(tabs)/{index,scan,check,reports,account},
+                      (app)/{history,reports,academy,settings}/…, (app)/notifications
 src/api/client.js     API calls: base URL, bearer token, timeouts, offline and expired-session handling
 src/auth/session.js   sign-in state and secure token storage
 src/components/       shared UI and the explained result views
-src/lib/              data-loading hook and formatting
+src/lib/              data-loading and paging hooks, formatting, shared constants
 ```

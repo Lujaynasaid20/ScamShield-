@@ -104,6 +104,18 @@ export function VerdictBadge({ verdict, kind, label }) {
   return <Badge tone={tone} icon={icon} label={text} />;
 }
 
+const REPORT_STATUS = {
+  submitted: { tone: "info", icon: "send-outline", label: "Submitted" },
+  under_review: { tone: "warn", icon: "hourglass-outline", label: "Under review" },
+  verified: { tone: "danger", icon: "checkmark-done-circle", label: "Verified" },
+  rejected: { tone: "neutral", icon: "close-circle-outline", label: "Rejected" },
+  resolved: { tone: "safe", icon: "checkmark-done", label: "Resolved" }
+};
+export function StatusBadge({ status }) {
+  const style = REPORT_STATUS[status] || REPORT_STATUS.submitted;
+  return <Badge tone={style.tone} icon={style.icon} label={style.label} />;
+}
+
 export function Notice({ tone = "info", icon = "information-circle", children, style }) {
   const look = tones[tone] || tones.info;
   return (
@@ -173,7 +185,7 @@ export function Segmented({ options, value, onChange }) {
         return (
           <Pressable key={key} onPress={() => onChange(key)} accessibilityRole="tab" accessibilityState={{ selected }} style={[styles.segment, selected && styles.segmentSelected]}>
             {!!icon && <Ionicons name={icon} size={16} color={selected ? colors.blue700 : colors.muted} />}
-            <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{label}</Text>
+            <Text style={[styles.segmentText, selected && styles.segmentTextSelected]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{label}</Text>
           </Pressable>
         );
       })}
@@ -216,7 +228,7 @@ export const styles = StyleSheet.create({
   rowIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.blue50, alignItems: "center", justifyContent: "center" },
   rowTitle: { fontSize: 15, fontWeight: "600", color: colors.ink },
   segmented: { flexDirection: "row", backgroundColor: colors.neutralBg, borderRadius: radius.sm, padding: 4, gap: 4 },
-  segment: { flex: 1, minHeight: 40, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center", borderRadius: 8 },
+  segment: { flex: 1, minHeight: 40, paddingHorizontal: 4, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center", borderRadius: 8 },
   segmentSelected: { backgroundColor: colors.surface },
   segmentText: { fontSize: 14, fontWeight: "600", color: colors.muted },
   segmentTextSelected: { color: colors.blue700 }

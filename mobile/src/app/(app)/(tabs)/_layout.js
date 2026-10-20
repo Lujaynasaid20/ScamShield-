@@ -6,7 +6,7 @@ const TABS = [
   ["index", "Home", "home"],
   ["scan", "Scan", "chatbox-ellipses"],
   ["check", "Check", "search"],
-  ["history", "History", "time"],
+  ["reports", "Reports", "flag"],
   ["account", "Account", "person-circle"]
 ];
 

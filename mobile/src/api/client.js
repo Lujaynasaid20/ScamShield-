@@ -27,6 +27,8 @@ export class ApiError extends Error {
 let authToken = null;
 let onUnauthorized = null;
 export const setAuthToken = token => { authToken = token; };
+// For native image requests (evidence thumbnails) that need the same sign-in header.
+export const authHeaders = () => (authToken ? { Authorization: `Bearer ${authToken}`, "User-Agent": USER_AGENT } : {});
 export const setUnauthorizedHandler = handler => { onUnauthorized = handler; };
 
 // body: a plain object (sent as JSON) or FormData. Auth endpoints are told this is the mobile client.
