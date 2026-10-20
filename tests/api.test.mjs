@@ -44,6 +44,18 @@ class Client {
 
 const email = name => `zz-test-${name}-${RUN}@example.test`;
 const PASSWORD = "correct-horse-battery";
+// The mobile app: a bearer token from the login response instead of a cookie.
+class MobileClient extends Client {
+  constructor() { super(); this.token = ""; }
+  async request(method, path, body, headers = {}) {
+    const auth = this.token ? { authorization: `Bearer ${this.token}` } : {};
+    const response = await super.request(method, path, body && !(body instanceof FormData) ? { client: "mobile", ...body } : body, { "user-agent": "ScamShield-Mobile/1.0 (Android 15)", ...auth, ...headers });
+    assert.equal(this.cookie, "", "the mobile API must not set cookies");
+    if (response.data?.token) this.token = response.data.token;
+    return response;
+  }
+}
+
 const alice = new Client(), bob = new Client(), admin = new Client(), anonymous = new Client();
 let aliceProfile, bobProfile;
 
@@ -158,6 +170,73 @@ describe("message analysis and history", () => {
     assert.equal((await bob.get(`/api/history/${scamId}`)).status, 404);
     assert.equal((await bob.delete(`/api/history/${scamId}`)).status, 404);
     assert.equal((await bob.get("/api/history")).data.total, 0);
+  });
+});
+
+describe("mobile app sign-in (bearer tokens)", () => {
+  const phone = new MobileClient();
+
+  test("an existing website account signs in on mobile and sees the same data", async () => {
+    const login = await phone.post("/api/auth/login", { email: email("alice"), password: PASSWORD });
+    assert.equal(login.status, 200, JSON.stringify(login.data));
+    assert.match(login.data.token, /^[\w-]+\.[\w-]+\.[\w-]+$/);
+    assert.equal(login.data.expires_in, 7 * 24 * 60 * 60);
+    assert.equal(login.data.profile.email, email("alice"));
+    const webHistory = await alice.get("/api/history");
+    const mobileHistory = await phone.get("/api/history");
+    assert.equal(mobileHistory.status, 200);
+    assert.equal(mobileHistory.data.total, webHistory.data.total);
+    assert.ok(mobileHistory.data.total > 0);
+  });
+
+  test("website sign-in still uses only the cookie and returns no token", async () => {
+    const web = new Client();
+    const login = await web.post("/api/auth/login", { email: email("bob"), password: PASSWORD });
+    assert.equal(login.status, 200);
+    assert.equal(login.data.token, undefined);
+    assert.ok(web.cookie);
+    assert.equal((await web.post("/api/auth/logout")).status, 204);
+  });
+
+  test("registration on mobile returns a working token", async () => {
+    const fresh = new MobileClient();
+    const response = await fresh.post("/api/auth/register", { email: email("mobile"), display_name: "Test mobile", password: PASSWORD });
+    assert.equal(response.status, 201, JSON.stringify(response.data));
+    assert.ok(response.data.token);
+    assert.equal((await fresh.get("/api/auth/session")).data.profile.email, email("mobile"));
+    assert.equal((await fresh.post("/api/auth/logout")).status, 204);
+  });
+
+  test("the mobile session is listed and revocable from the website", async () => {
+    const sessions = await alice.get("/api/settings/sessions");
+    const mobileSession = sessions.data.sessions.find(session => session.device === "ScamShield app on Android");
+    assert.ok(mobileSession, JSON.stringify(sessions.data.sessions));
+    assert.equal((await phone.get("/api/overview")).status, 200);
+    assert.equal((await alice.delete(`/api/settings/sessions/${mobileSession.id}`)).status, 204);
+    const after = await phone.get("/api/overview");
+    assert.equal(after.status, 401);
+    assert.match(after.data.error, /session has ended/);
+  });
+
+  test("administrators can't use the mobile app", async () => {
+    const response = await new MobileClient().post("/api/auth/login", { email: email("admin"), password: PASSWORD });
+    assert.equal(response.status, 403);
+    assert.match(response.data.error, /website/);
+    assert.equal(response.data.token, undefined);
+  });
+
+  test("invalid and tampered tokens are rejected; logout revokes the token", async () => {
+    const stranger = new MobileClient();
+    stranger.token = "not-a-token";
+    assert.equal((await stranger.get("/api/overview")).status, 401);
+    const second = new MobileClient();
+    await second.post("/api/auth/login", { email: email("alice"), password: PASSWORD });
+    const [head, payload, signature] = second.token.split(".");
+    stranger.token = `${head}.${payload}.${signature.slice(0, -2)}xx`;
+    assert.equal((await stranger.get("/api/overview")).status, 401);
+    assert.equal((await second.get("/api/overview")).status, 200);
+    assert.equal((await second.post("/api/auth/logout")).status, 204);
+    assert.equal((await second.get("/api/overview")).status, 401);
   });
 });
 
@@ -337,7 +416,7 @@ describe("reports, evidence, status tracking and sender checks", () => {
   test("admin lists include reports, cases and users", async () => {
     assert.ok((await admin.get(`/api/admin/reports?q=${RUN}`)).data.total >= 1);
     assert.ok((await admin.get("/api/admin/cases?kind=url")).data.total >= 2);
-    assert.ok((await admin.get(`/api/admin/users?q=${RUN}`)).data.total === 3);
+    assert.ok((await admin.get(`/api/admin/users?q=${RUN}`)).data.total === 4, "alice, bob, admin and the mobile-registered user");
     const overview = await admin.get("/api/admin/overview");
     assert.equal(overview.status, 200);
     assert.equal(overview.data.daily.length, 14);

@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { pool } from "@/lib/db";
-import { audit, createSession, emailPattern, json, publicProfile, readBody, route, withAuthLimit } from "@/lib/server";
+import { audit, createSession, emailPattern, isMobileClient, json, publicProfile, readBody, route, withAuthLimit } from "@/lib/server";
 
 export const POST = withAuthLimit(route(async request => {
   const body = await readBody(request);
@@ -31,7 +31,8 @@ export const POST = withAuthLimit(route(async request => {
   } finally {
     client.release();
   }
-  await createSession(profile, request);
-  await audit("account_created", { userId: profile.id, actorId: profile.id });
-  return json({ profile: publicProfile(profile) }, 201);
+  const mobile = isMobileClient(body);
+  const session = await createSession(profile, request, { mobile });
+  await audit("account_created", { userId: profile.id, actorId: profile.id, details: mobile ? { client: "mobile" } : {} });
+  return json({ profile: publicProfile(profile), ...(mobile ? { token: session.token, expires_in: session.expiresIn } : {}) }, 201);
 }));

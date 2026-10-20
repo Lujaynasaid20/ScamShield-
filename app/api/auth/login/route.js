@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { pool } from "@/lib/db";
-import { audit, createSession, json, publicProfile, readBody, route, withAuthLimit } from "@/lib/server";
+import { audit, createSession, isMobileClient, json, publicProfile, readBody, route, withAuthLimit } from "@/lib/server";
 import { decryptSecret, verifyTotp } from "@/lib/totp";
 
 // Compared against when the email is unknown, so response time doesn't reveal which emails exist.
@@ -18,6 +18,8 @@ export const POST = withAuthLimit(route(async request => {
     return json({ error: "Email or password is incorrect." }, 401);
   }
   const isAdmin = profile.role === "admin";
+  const mobile = isMobileClient(body);
+  if (mobile && isAdmin) return json({ error: "Administrator accounts use the ScamShield website, not the mobile app." }, 403);
   if (body.admin === true && !isAdmin) return json({ error: "This account is not an admin. Use the Log in tab." }, 403);
   if (body.admin !== true && isAdmin) return json({ error: "This is an admin account. Use the Admin tab to log in." }, 403);
 
@@ -32,7 +34,7 @@ export const POST = withAuthLimit(route(async request => {
     await pool.query("update profiles set totp_last_step = $1 where id = $2", [step, profile.id]);
   }
 
-  await createSession(profile, request);
-  await audit("login", { userId: profile.id, actorId: profile.id });
-  return json({ profile: publicProfile(profile) });
+  const session = await createSession(profile, request, { mobile });
+  await audit("login", { userId: profile.id, actorId: profile.id, details: mobile ? { client: "mobile" } : {} });
+  return json({ profile: publicProfile(profile), ...(mobile ? { token: session.token, expires_in: session.expiresIn } : {}) });
 }));

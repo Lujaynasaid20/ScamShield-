@@ -4,6 +4,8 @@ import { audit, authenticate, json, route } from "@/lib/server";
 
 function describeAgent(userAgent) {
   if (!userAgent) return "Unknown device";
+  const app = /^ScamShield-Mobile\/[\d.]+ \((Android|iOS)/.exec(userAgent);
+  if (app) return `ScamShield app on ${app[1]}`;
   const browser = /Edg\//.test(userAgent) ? "Edge" : /OPR\//.test(userAgent) ? "Opera" : /Chrome\//.test(userAgent) ? "Chrome" : /Firefox\//.test(userAgent) ? "Firefox" : /Safari\//.test(userAgent) ? "Safari" : /curl|node|undici/i.test(userAgent) ? "Script or API client" : "Browser";
   const os = /Windows/.test(userAgent) ? "Windows" : /Android/.test(userAgent) ? "Android" : /iPhone|iPad/.test(userAgent) ? "iOS" : /Mac OS X/.test(userAgent) ? "macOS" : /Linux/.test(userAgent) ? "Linux" : "";
   return os ? `${browser} on ${os}` : browser;
