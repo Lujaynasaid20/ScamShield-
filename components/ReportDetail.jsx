@@ -19,6 +19,7 @@ export function ReportSummary({ report, showReporter = false }) {
         {report.message_text && <><dt>Message</dt><dd><div className="highlighted-message">{report.message_text}</div></dd></>}
         {report.url && <><dt>Link</dt><dd className="mono">{report.url}</dd></>}
         {report.sender_value && <><dt>Sender</dt><dd><span className="text-capitalize">{report.sender_type}</span>: <span className="mono">{report.sender_value}</span></dd></>}
+        {report.claimed_identity && <><dt>Claimed to be</dt><dd>{report.claimed_identity}</dd></>}
         {report.case_id && <><dt>Linked analysis</dt><dd>#{report.case_id}</dd></>}
       </dl>
       {report.admin_feedback && (

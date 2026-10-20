@@ -272,6 +272,8 @@ a.list-row:hover .list-row-main strong { color: var(--blue-700); }
 /* ---------- Progress ---------- */
 .progress-bar-track { height: 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
 .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue-500), var(--blue-700)); border-radius: 999px; }
+.screenshot-preview { display: flex; gap: .75rem; align-items: center; padding: .6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.screenshot-preview img { width: 56px; height: 56px; object-fit: cover; object-position: top; border-radius: 6px; border: 1px solid var(--line); flex-shrink: 0; }
 
 /* ---------- Academy ---------- */
 .module-card { display: flex; flex-direction: column; gap: .5rem; text-decoration: none; color: inherit; height: 100%; transition: border-color .15s; }

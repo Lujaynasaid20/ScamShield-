@@ -1,0 +1,960 @@
+{
+  "dataset": {
+    "file": "ScamShield_AI_Sample_Dataset_100.csv",
+    "sha256": "70bb9bea3470dd0ff7917cee4c5705a871bee89a5429429ed8be3d3631bef333",
+    "rows": 100,
+    "labels": {
+      "scam": 40,
+      "safe": 40,
+      "needs_review": 20
+    },
+    "languages": {
+      "en": 50,
+      "sw": 50
+    },
+    "categoryCounts": {
+      "account_notice": 4,
+      "account_takeover": 4,
+      "appointment": 2,
+      "banking": 2,
+      "charity": 2,
+      "community": 2,
+      "customer_service": 2,
+      "delivery": 4,
+      "delivery_scam": 2,
+      "education": 2,
+      "event": 2,
+      "fake_grant": 1,
+      "fake_prize": 3,
+      "family_message": 2,
+      "financial_fraud": 8,
+      "health_appointment": 2,
+      "impersonation": 6,
+      "investment": 2,
+      "investment_scam": 2,
+      "job_scam": 4,
+      "meeting": 2,
+      "payment_confirmation": 2,
+      "payment_request": 4,
+      "personal_message": 4,
+      "phishing": 8,
+      "prize": 2,
+      "recruitment": 4,
+      "romance_scam": 2,
+      "school": 4,
+      "school_fee": 2,
+      "service_notice": 2,
+      "subscription": 2,
+      "transport": 2,
+      "work": 2
+    },
+    "annotationFieldsRetained": [
+      "category",
+      "reason",
+      "recommended_action"
+    ],
+    "annotations": [
+      {
+        "id": "SSAI-001",
+        "language": "en",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Requests a secret PIN for an unexpected prize.",
+        "recommended_action": "Never share your PIN; verify promotions through official channels."
+      },
+      {
+        "id": "SSAI-002",
+        "language": "en",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Urgency plus an unverified login link.",
+        "recommended_action": "Do not use the link; open the official app or website directly."
+      },
+      {
+        "id": "SSAI-003",
+        "language": "en",
+        "label": "scam",
+        "category": "account_takeover",
+        "reason": "Requests a one-time code that could enable account takeover.",
+        "recommended_action": "Never share verification codes."
+      },
+      {
+        "id": "SSAI-004",
+        "language": "en",
+        "label": "scam",
+        "category": "job_scam",
+        "reason": "Upfront fee for a job with no credible hiring process.",
+        "recommended_action": "Verify the employer and do not pay to secure a job."
+      },
+      {
+        "id": "SSAI-005",
+        "language": "en",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Pressures the recipient to send money without verification.",
+        "recommended_action": "Check your actual transaction history and contact the provider officially."
+      },
+      {
+        "id": "SSAI-006",
+        "language": "en",
+        "label": "scam",
+        "category": "fake_prize",
+        "reason": "Unexpected prize and advance payment demand.",
+        "recommended_action": "Do not pay; verify the promotion independently."
+      },
+      {
+        "id": "SSAI-007",
+        "language": "en",
+        "label": "scam",
+        "category": "impersonation",
+        "reason": "Impersonates a bank and requests a secret credential.",
+        "recommended_action": "Do not share your PIN; contact the bank using official details."
+      },
+      {
+        "id": "SSAI-008",
+        "language": "en",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Threatens account loss and provides an unverified sign-in link.",
+        "recommended_action": "Open the email provider's official app directly."
+      },
+      {
+        "id": "SSAI-009",
+        "language": "en",
+        "label": "scam",
+        "category": "investment_scam",
+        "reason": "Promises implausibly high guaranteed returns.",
+        "recommended_action": "Do not invest before independently verifying the provider."
+      },
+      {
+        "id": "SSAI-010",
+        "language": "en",
+        "label": "scam",
+        "category": "romance_scam",
+        "reason": "Uses emotional pressure, secrecy, and an urgent money request.",
+        "recommended_action": "Verify identity through a trusted channel before sending money."
+      },
+      {
+        "id": "SSAI-011",
+        "language": "en",
+        "label": "scam",
+        "category": "impersonation",
+        "reason": "Impersonates a relative and discourages voice verification.",
+        "recommended_action": "Call the family member on their known number."
+      },
+      {
+        "id": "SSAI-012",
+        "language": "en",
+        "label": "scam",
+        "category": "delivery_scam",
+        "reason": "Unexpected fee request through an unverified link.",
+        "recommended_action": "Check tracking through the official courier service."
+      },
+      {
+        "id": "SSAI-013",
+        "language": "en",
+        "label": "scam",
+        "category": "account_takeover",
+        "reason": "Requests a code under threat of account loss.",
+        "recommended_action": "Never share login codes; use the platform's official help center."
+      },
+      {
+        "id": "SSAI-014",
+        "language": "en",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Requests confidential credentials while pretending to provide support.",
+        "recommended_action": "Never share PINs or codes; contact the provider directly."
+      },
+      {
+        "id": "SSAI-015",
+        "language": "en",
+        "label": "scam",
+        "category": "fake_grant",
+        "reason": "Unverified grant and advance-fee demand.",
+        "recommended_action": "Check grant information through official government sources."
+      },
+      {
+        "id": "SSAI-016",
+        "language": "en",
+        "label": "scam",
+        "category": "job_scam",
+        "reason": "Implausible earnings and a deposit requirement.",
+        "recommended_action": "Avoid paying to unlock work; verify the organization."
+      },
+      {
+        "id": "SSAI-017",
+        "language": "en",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Requests sensitive credentials through an unverified link.",
+        "recommended_action": "Do not enter credentials; contact your bank officially."
+      },
+      {
+        "id": "SSAI-018",
+        "language": "en",
+        "label": "scam",
+        "category": "impersonation",
+        "reason": "Requests remote access while claiming to provide support.",
+        "recommended_action": "Do not give strangers remote access to your device."
+      },
+      {
+        "id": "SSAI-019",
+        "language": "en",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Demands an unexplained payment to unlock an account.",
+        "recommended_action": "Verify the request with the service provider independently."
+      },
+      {
+        "id": "SSAI-020",
+        "language": "en",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Urgency and an unverified login link.",
+        "recommended_action": "Navigate to the official service manually."
+      },
+      {
+        "id": "SSAI-021",
+        "language": "sw",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Inaomba PIN ya siri ili kudai zawadi isiyotarajiwa.",
+        "recommended_action": "Usitoe PIN yako; hakiki promosheni kupitia njia rasmi."
+      },
+      {
+        "id": "SSAI-022",
+        "language": "sw",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Inatumia vitisho na kuomba nenosiri kupitia kiungo kisichothibitishwa.",
+        "recommended_action": "Usifungue link; tumia programu au tovuti rasmi."
+      },
+      {
+        "id": "SSAI-023",
+        "language": "sw",
+        "label": "scam",
+        "category": "account_takeover",
+        "reason": "Inaomba msimbo unaoweza kutumiwa kuingia kwenye akaunti yako.",
+        "recommended_action": "Usishiriki msimbo wa uthibitisho."
+      },
+      {
+        "id": "SSAI-024",
+        "language": "sw",
+        "label": "scam",
+        "category": "job_scam",
+        "reason": "Inaahidi kazi na kudai ada ya awali.",
+        "recommended_action": "Hakiki mwajiri na usilipe ada ili kupata kazi."
+      },
+      {
+        "id": "SSAI-025",
+        "language": "sw",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Inakushinikiza kutuma pesa bila kuthibitisha muamala.",
+        "recommended_action": "Kagua historia ya miamala na wasiliana na mtoa huduma rasmi."
+      },
+      {
+        "id": "SSAI-026",
+        "language": "sw",
+        "label": "scam",
+        "category": "fake_prize",
+        "reason": "Inadai zawadi isiyotarajiwa na malipo ya awali.",
+        "recommended_action": "Usilipe; hakiki tangazo kupitia chanzo rasmi."
+      },
+      {
+        "id": "SSAI-027",
+        "language": "sw",
+        "label": "scam",
+        "category": "impersonation",
+        "reason": "Inajifanya kuwa benki na kuomba taarifa ya siri.",
+        "recommended_action": "Usitoe PIN; piga namba rasmi ya benki."
+      },
+      {
+        "id": "SSAI-028",
+        "language": "sw",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Inatisha kuhusu kupoteza ujumbe na kutoa kiungo kisichothibitishwa.",
+        "recommended_action": "Fungua tovuti rasmi mwenyewe."
+      },
+      {
+        "id": "SSAI-029",
+        "language": "sw",
+        "label": "scam",
+        "category": "investment_scam",
+        "reason": "Inaahidi faida kubwa isiyo ya kawaida na ya uhakika.",
+        "recommended_action": "Thibitisha uwekezaji kwa kujitegemea kabla ya kutuma pesa."
+      },
+      {
+        "id": "SSAI-030",
+        "language": "sw",
+        "label": "scam",
+        "category": "romance_scam",
+        "reason": "Inatumia hisia, siri, na shinikizo la kutuma pesa.",
+        "recommended_action": "Thibitisha utambulisho na zungumza na mtu unayemwamini."
+      },
+      {
+        "id": "SSAI-031",
+        "language": "sw",
+        "label": "scam",
+        "category": "impersonation",
+        "reason": "Inaweza kujifanya ndugu na kuzuia uthibitisho kwa simu.",
+        "recommended_action": "Piga namba ya zamani inayojulikana kabla ya kutuma pesa."
+      },
+      {
+        "id": "SSAI-032",
+        "language": "sw",
+        "label": "scam",
+        "category": "delivery_scam",
+        "reason": "Inaomba ada kupitia kiungo kisichothibitishwa.",
+        "recommended_action": "Thibitisha mzigo kwa kampuni rasmi ya usafirishaji."
+      },
+      {
+        "id": "SSAI-033",
+        "language": "sw",
+        "label": "scam",
+        "category": "account_takeover",
+        "reason": "Inaomba msimbo wa siri unaoweza kuruhusu mtu kuchukua akaunti.",
+        "recommended_action": "Usishiriki OTP; wasiliana na mtoa huduma moja kwa moja."
+      },
+      {
+        "id": "SSAI-034",
+        "language": "sw",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Inaomba ada ya awali kwa msaada usiothibitishwa.",
+        "recommended_action": "Hakiki msaada kupitia njia rasmi za serikali."
+      },
+      {
+        "id": "SSAI-035",
+        "language": "sw",
+        "label": "scam",
+        "category": "job_scam",
+        "reason": "Inaahidi mapato yasiyo ya kawaida na kuomba amana.",
+        "recommended_action": "Epuka kazi zinazotaka ulipe ili uanze."
+      },
+      {
+        "id": "SSAI-036",
+        "language": "sw",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Inaomba taarifa nyeti kupitia kiungo kisichothibitishwa.",
+        "recommended_action": "Usiweke taarifa; wasiliana na benki kupitia njia rasmi."
+      },
+      {
+        "id": "SSAI-037",
+        "language": "sw",
+        "label": "scam",
+        "category": "impersonation",
+        "reason": "Inaomba udhibiti wa simu huku ikijifanya msaada rasmi.",
+        "recommended_action": "Usiruhusu mtu usiyemjua kuingia kwenye simu yako."
+      },
+      {
+        "id": "SSAI-038",
+        "language": "sw",
+        "label": "scam",
+        "category": "financial_fraud",
+        "reason": "Inadai malipo ili kufungua akaunti bila ushahidi wa ombi halali.",
+        "recommended_action": "Wasiliana na mtoa huduma rasmi kabla ya kulipa."
+      },
+      {
+        "id": "SSAI-039",
+        "language": "sw",
+        "label": "scam",
+        "category": "fake_prize",
+        "reason": "Inaomba taarifa nyeti kwa kisingizio cha zawadi.",
+        "recommended_action": "Usitoe PIN au taarifa nyeti; hakiki promosheni."
+      },
+      {
+        "id": "SSAI-040",
+        "language": "sw",
+        "label": "scam",
+        "category": "phishing",
+        "reason": "Inatumia haraka na kiungo kifupi kisichothibitishwa.",
+        "recommended_action": "Fungua tovuti rasmi mwenyewe."
+      },
+      {
+        "id": "SSAI-041",
+        "language": "en",
+        "label": "safe",
+        "category": "appointment",
+        "reason": "Routine appointment confirmation.",
+        "recommended_action": "Check your calendar and contact the organization if you need changes."
+      },
+      {
+        "id": "SSAI-042",
+        "language": "en",
+        "label": "safe",
+        "category": "personal_message",
+        "reason": "Ordinary personal message without a suspicious request.",
+        "recommended_action": "Reply if appropriate."
+      },
+      {
+        "id": "SSAI-043",
+        "language": "en",
+        "label": "safe",
+        "category": "payment_confirmation",
+        "reason": "Routine payment notification; authenticity depends on the actual sender and transaction.",
+        "recommended_action": "Confirm the payment in your official account or app."
+      },
+      {
+        "id": "SSAI-044",
+        "language": "en",
+        "label": "safe",
+        "category": "recruitment",
+        "reason": "Standard recruitment update without upfront fees or credential requests.",
+        "recommended_action": "Wait for official follow-up and verify the employer if unsure."
+      },
+      {
+        "id": "SSAI-045",
+        "language": "en",
+        "label": "safe",
+        "category": "education",
+        "reason": "Routine academic notice referencing a known portal.",
+        "recommended_action": "Open the university portal using your usual bookmark or official website."
+      },
+      {
+        "id": "SSAI-046",
+        "language": "en",
+        "label": "safe",
+        "category": "delivery",
+        "reason": "Routine delivery update without unusual payment demands.",
+        "recommended_action": "Check delivery status through the official courier."
+      },
+      {
+        "id": "SSAI-047",
+        "language": "en",
+        "label": "safe",
+        "category": "work",
+        "reason": "Ordinary work scheduling message.",
+        "recommended_action": "Confirm your availability if needed."
+      },
+      {
+        "id": "SSAI-048",
+        "language": "en",
+        "label": "safe",
+        "category": "service_notice",
+        "reason": "Routine service announcement.",
+        "recommended_action": "Use official channels if you need assistance."
+      },
+      {
+        "id": "SSAI-049",
+        "language": "en",
+        "label": "safe",
+        "category": "school",
+        "reason": "Ordinary academic reminder.",
+        "recommended_action": "Attend if it is on your schedule."
+      },
+      {
+        "id": "SSAI-050",
+        "language": "en",
+        "label": "safe",
+        "category": "family_message",
+        "reason": "Ordinary family communication.",
+        "recommended_action": "Reply if appropriate."
+      },
+      {
+        "id": "SSAI-051",
+        "language": "en",
+        "label": "safe",
+        "category": "payment_request",
+        "reason": "Normal repayment reminder without threats or credential requests.",
+        "recommended_action": "Verify context and recipient before sending money."
+      },
+      {
+        "id": "SSAI-052",
+        "language": "en",
+        "label": "safe",
+        "category": "account_notice",
+        "reason": "Security notice recommends using the official app rather than sharing credentials.",
+        "recommended_action": "Check the alert directly in the official app."
+      },
+      {
+        "id": "SSAI-053",
+        "language": "en",
+        "label": "safe",
+        "category": "event",
+        "reason": "Routine event invitation.",
+        "recommended_action": "Confirm event details with the organizer if needed."
+      },
+      {
+        "id": "SSAI-054",
+        "language": "en",
+        "label": "safe",
+        "category": "subscription",
+        "reason": "Routine subscription reminder.",
+        "recommended_action": "Review your subscription in the official app."
+      },
+      {
+        "id": "SSAI-055",
+        "language": "en",
+        "label": "safe",
+        "category": "health_appointment",
+        "reason": "Routine appointment reminder.",
+        "recommended_action": "Use your known clinic contact if needed."
+      },
+      {
+        "id": "SSAI-056",
+        "language": "en",
+        "label": "safe",
+        "category": "customer_service",
+        "reason": "Routine ticket acknowledgment.",
+        "recommended_action": "Use the reference when contacting official support."
+      },
+      {
+        "id": "SSAI-057",
+        "language": "en",
+        "label": "safe",
+        "category": "school_fee",
+        "reason": "Routine payment receipt notification.",
+        "recommended_action": "Confirm payment in the school's official system."
+      },
+      {
+        "id": "SSAI-058",
+        "language": "en",
+        "label": "safe",
+        "category": "meeting",
+        "reason": "Normal workplace request.",
+        "recommended_action": "Respond through your usual work channel."
+      },
+      {
+        "id": "SSAI-059",
+        "language": "en",
+        "label": "safe",
+        "category": "transport",
+        "reason": "Routine travel update.",
+        "recommended_action": "Check with the transport provider if plans change."
+      },
+      {
+        "id": "SSAI-060",
+        "language": "en",
+        "label": "safe",
+        "category": "community",
+        "reason": "Ordinary community announcement.",
+        "recommended_action": "Confirm with organizers if needed."
+      },
+      {
+        "id": "SSAI-061",
+        "language": "sw",
+        "label": "safe",
+        "category": "appointment",
+        "reason": "Ujumbe wa kawaida wa kukumbusha miadi.",
+        "recommended_action": "Kagua ratiba yako na wasiliana na taasisi kupitia namba rasmi ukihitaji kubadilisha miadi."
+      },
+      {
+        "id": "SSAI-062",
+        "language": "sw",
+        "label": "safe",
+        "category": "personal_message",
+        "reason": "Ujumbe wa kawaida wa mawasiliano binafsi.",
+        "recommended_action": "Jibu ikiwa inafaa."
+      },
+      {
+        "id": "SSAI-063",
+        "language": "sw",
+        "label": "safe",
+        "category": "payment_confirmation",
+        "reason": "Taarifa ya kawaida ya malipo; uhalali hutegemea mtumaji na muamala halisi.",
+        "recommended_action": "Thibitisha malipo kwenye programu rasmi."
+      },
+      {
+        "id": "SSAI-064",
+        "language": "sw",
+        "label": "safe",
+        "category": "recruitment",
+        "reason": "Taarifa ya kawaida ya ajira bila ada ya awali.",
+        "recommended_action": "Subiri taarifa rasmi na hakiki mwajiri ikiwa una mashaka."
+      },
+      {
+        "id": "SSAI-065",
+        "language": "sw",
+        "label": "safe",
+        "category": "education",
+        "reason": "Taarifa ya masomo inayopendekeza kutumia mfumo rasmi.",
+        "recommended_action": "Fungua tovuti rasmi ya chuo mwenyewe."
+      },
+      {
+        "id": "SSAI-066",
+        "language": "sw",
+        "label": "safe",
+        "category": "delivery",
+        "reason": "Taarifa ya kawaida ya usafirishaji.",
+        "recommended_action": "Fuatilia mzigo kupitia kampuni rasmi."
+      },
+      {
+        "id": "SSAI-067",
+        "language": "sw",
+        "label": "safe",
+        "category": "work",
+        "reason": "Ujumbe wa kawaida wa kupanga mkutano.",
+        "recommended_action": "Thibitisha kama utaweza kuhudhuria."
+      },
+      {
+        "id": "SSAI-068",
+        "language": "sw",
+        "label": "safe",
+        "category": "service_notice",
+        "reason": "Tangazo la kawaida la huduma.",
+        "recommended_action": "Tumia njia rasmi ikiwa unahitaji msaada."
+      },
+      {
+        "id": "SSAI-069",
+        "language": "sw",
+        "label": "safe",
+        "category": "school",
+        "reason": "Kumbusho la kawaida la masomo.",
+        "recommended_action": "Hudhuria ikiwa somo lipo kwenye ratiba."
+      },
+      {
+        "id": "SSAI-070",
+        "language": "sw",
+        "label": "safe",
+        "category": "family_message",
+        "reason": "Ujumbe wa kawaida wa kifamilia.",
+        "recommended_action": "Jibu ikiwa inafaa."
+      },
+      {
+        "id": "SSAI-071",
+        "language": "sw",
+        "label": "safe",
+        "category": "payment_request",
+        "reason": "Ombi la kawaida la kurudisha deni.",
+        "recommended_action": "Thibitisha mtu na mazingira kabla ya kutuma pesa."
+      },
+      {
+        "id": "SSAI-072",
+        "language": "sw",
+        "label": "safe",
+        "category": "account_notice",
+        "reason": "Taarifa inayopendekeza kutumia programu rasmi.",
+        "recommended_action": "Kagua taarifa ndani ya programu rasmi."
+      },
+      {
+        "id": "SSAI-073",
+        "language": "sw",
+        "label": "safe",
+        "category": "event",
+        "reason": "Mwaliko wa kawaida wa tukio.",
+        "recommended_action": "Thibitisha maelezo kwa waandaaji ikiwa inahitajika."
+      },
+      {
+        "id": "SSAI-074",
+        "language": "sw",
+        "label": "safe",
+        "category": "subscription",
+        "reason": "Kumbusho la kawaida la usajili.",
+        "recommended_action": "Kagua usajili kwenye programu rasmi."
+      },
+      {
+        "id": "SSAI-075",
+        "language": "sw",
+        "label": "safe",
+        "category": "health_appointment",
+        "reason": "Kumbusho la kawaida la miadi.",
+        "recommended_action": "Wasiliana na kliniki kwa kutumia namba unayoijua."
+      },
+      {
+        "id": "SSAI-076",
+        "language": "sw",
+        "label": "safe",
+        "category": "customer_service",
+        "reason": "Ujumbe wa kawaida wa kuthibitisha ombi.",
+        "recommended_action": "Tumia namba ya kumbukumbu ukiwasiliana na huduma rasmi."
+      },
+      {
+        "id": "SSAI-077",
+        "language": "sw",
+        "label": "safe",
+        "category": "school_fee",
+        "reason": "Taarifa ya kawaida ya malipo ya ada.",
+        "recommended_action": "Thibitisha malipo kwenye mfumo rasmi wa chuo."
+      },
+      {
+        "id": "SSAI-078",
+        "language": "sw",
+        "label": "safe",
+        "category": "meeting",
+        "reason": "Ombi la kawaida la kikazi.",
+        "recommended_action": "Jibu kupitia njia yako ya kawaida ya kazi."
+      },
+      {
+        "id": "SSAI-079",
+        "language": "sw",
+        "label": "safe",
+        "category": "transport",
+        "reason": "Taarifa ya kawaida ya usafiri.",
+        "recommended_action": "Thibitisha na mtoa huduma ikiwa ratiba itabadilika."
+      },
+      {
+        "id": "SSAI-080",
+        "language": "sw",
+        "label": "safe",
+        "category": "community",
+        "reason": "Tangazo la kawaida la jamii.",
+        "recommended_action": "Thibitisha na waandaaji ikiwa unahitaji maelezo."
+      },
+      {
+        "id": "SSAI-081",
+        "language": "en",
+        "label": "needs_review",
+        "category": "delivery",
+        "reason": "Could be legitimate or spoofed; sender and destination are missing.",
+        "recommended_action": "Check tracking through the courier's official website or app."
+      },
+      {
+        "id": "SSAI-082",
+        "language": "en",
+        "label": "needs_review",
+        "category": "account_notice",
+        "reason": "Could be genuine or impersonation; sender details are missing.",
+        "recommended_action": "Open the official app directly and review activity."
+      },
+      {
+        "id": "SSAI-083",
+        "language": "en",
+        "label": "needs_review",
+        "category": "payment_request",
+        "reason": "Payment request alone does not establish fraud; order context is missing.",
+        "recommended_action": "Verify the order, recipient, and payment details before paying."
+      },
+      {
+        "id": "SSAI-084",
+        "language": "en",
+        "label": "needs_review",
+        "category": "recruitment",
+        "reason": "Could be legitimate outreach or unsolicited recruitment.",
+        "recommended_action": "Research the employer and never pay an upfront recruitment fee."
+      },
+      {
+        "id": "SSAI-085",
+        "language": "en",
+        "label": "needs_review",
+        "category": "prize",
+        "reason": "Could be legitimate marketing or a misleading offer; source is unknown.",
+        "recommended_action": "Verify the promotion through official channels."
+      },
+      {
+        "id": "SSAI-086",
+        "language": "en",
+        "label": "needs_review",
+        "category": "banking",
+        "reason": "Could be a genuine alert or spoof; sender identity is unknown.",
+        "recommended_action": "Check your bank app directly and use the official support number."
+      },
+      {
+        "id": "SSAI-087",
+        "language": "en",
+        "label": "needs_review",
+        "category": "personal_message",
+        "reason": "Urgency alone does not establish fraud.",
+        "recommended_action": "Verify the sender through a known contact method before sharing money or information."
+      },
+      {
+        "id": "SSAI-088",
+        "language": "en",
+        "label": "needs_review",
+        "category": "charity",
+        "reason": "Could be genuine or fraudulent; organizer details are missing.",
+        "recommended_action": "Verify the charity and donation channel independently."
+      },
+      {
+        "id": "SSAI-089",
+        "language": "en",
+        "label": "needs_review",
+        "category": "school",
+        "reason": "Could be a routine notice or phishing; sender and destination are unknown.",
+        "recommended_action": "Navigate to the official school portal manually."
+      },
+      {
+        "id": "SSAI-090",
+        "language": "en",
+        "label": "needs_review",
+        "category": "investment",
+        "reason": "Could be educational or misleading; details are insufficient.",
+        "recommended_action": "Check the organizer and do not invest based on promises alone."
+      },
+      {
+        "id": "SSAI-091",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "delivery",
+        "reason": "Inaweza kuwa halali au ujumbe wa kujifanya; muktadha haupo.",
+        "recommended_action": "Fuatilia mzigo kupitia tovuti au programu rasmi."
+      },
+      {
+        "id": "SSAI-092",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "account_notice",
+        "reason": "Inaweza kuwa taarifa halali au ya kujifanya; mtumaji hajathibitishwa.",
+        "recommended_action": "Fungua programu rasmi na kagua shughuli za akaunti."
+      },
+      {
+        "id": "SSAI-093",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "payment_request",
+        "reason": "Ombi la malipo pekee halithibitishi utapeli; maelezo hayapo.",
+        "recommended_action": "Thibitisha oda, mpokeaji na taarifa za malipo kabla ya kulipa."
+      },
+      {
+        "id": "SSAI-094",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "recruitment",
+        "reason": "Inaweza kuwa ajira halali au ujumbe usioombwa; mtumaji hajulikani.",
+        "recommended_action": "Chunguza kampuni na usilipe ada ya kupata kazi."
+      },
+      {
+        "id": "SSAI-095",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "prize",
+        "reason": "Inaweza kuwa tangazo halali au ofa ya kupotosha; chanzo hakijulikani.",
+        "recommended_action": "Hakiki promosheni kupitia njia rasmi."
+      },
+      {
+        "id": "SSAI-096",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "banking",
+        "reason": "Inaweza kuwa taarifa halali au ya kujifanya; mtumaji hajathibitishwa.",
+        "recommended_action": "Kagua programu rasmi ya benki na tumia namba rasmi."
+      },
+      {
+        "id": "SSAI-097",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "personal_message",
+        "reason": "Haraka pekee haitoshi kuthibitisha utapeli.",
+        "recommended_action": "Thibitisha mtumaji kabla ya kutuma pesa au taarifa."
+      },
+      {
+        "id": "SSAI-098",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "charity",
+        "reason": "Inaweza kuwa mchango halali au ulaghai; waandaaji hawajatajwa.",
+        "recommended_action": "Thibitisha shirika na njia ya kuchangia."
+      },
+      {
+        "id": "SSAI-099",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "school",
+        "reason": "Inaweza kuwa taarifa ya kawaida au ulaghai; chanzo hakijulikani.",
+        "recommended_action": "Fungua mfumo rasmi wa chuo mwenyewe."
+      },
+      {
+        "id": "SSAI-100",
+        "language": "sw",
+        "label": "needs_review",
+        "category": "investment",
+        "reason": "Inaweza kuwa elimu halali au mpango hatari; maelezo hayatoshi.",
+        "recommended_action": "Hakiki waandaaji na usiwekeze kwa kutegemea ahadi pekee."
+      }
+    ]
+  },
+  "split": {
+    "seed": 20261020,
+    "proportions": {
+      "train": 0.6,
+      "validation": 0.2,
+      "test": 0.2
+    },
+    "counts": {
+      "train": 60,
+      "validation": 20,
+      "test": 20
+    },
+    "groupedBy": [
+      "label",
+      "language"
+    ],
+    "duplicatesAcrossSplits": 0
+  },
+  "validation": {
+    "examples": 20,
+    "accuracy": 0.55,
+    "perClass": {
+      "scam": {
+        "precision": 0.7,
+        "recall": 0.875,
+        "f1": 0.7777777777777777,
+        "support": 8
+      },
+      "safe": {
+        "precision": 1,
+        "recall": 0.375,
+        "f1": 0.5454545454545454,
+        "support": 8
+      },
+      "needs_review": {
+        "precision": 0.14285714285714285,
+        "recall": 0.25,
+        "f1": 0.18181818181818182,
+        "support": 4
+      }
+    },
+    "confusionMatrix": {
+      "scam": {
+        "scam": 7,
+        "safe": 0,
+        "needs_review": 1
+      },
+      "safe": {
+        "scam": 0,
+        "safe": 3,
+        "needs_review": 5
+      },
+      "needs_review": {
+        "scam": 3,
+        "safe": 0,
+        "needs_review": 1
+      }
+    }
+  },
+  "test": {
+    "examples": 20,
+    "accuracy": 0.5,
+    "perClass": {
+      "scam": {
+        "precision": 0.7,
+        "recall": 0.875,
+        "f1": 0.7777777777777777,
+        "support": 8
+      },
+      "safe": {
+        "precision": 1,
+        "recall": 0.125,
+        "f1": 0.2222222222222222,
+        "support": 8
+      },
+      "needs_review": {
+        "precision": 0.2222222222222222,
+        "recall": 0.5,
+        "f1": 0.30769230769230765,
+        "support": 4
+      }
+    },
+    "confusionMatrix": {
+      "scam": {
+        "scam": 7,
+        "safe": 0,
+        "needs_review": 1
+      },
+      "safe": {
+        "scam": 1,
+        "safe": 1,
+        "needs_review": 6
+      },
+      "needs_review": {
+        "scam": 2,
+        "safe": 0,
+        "needs_review": 2
+      }
+    }
+  },
+  "note": "Naive Bayes softmax values are not calibrated probabilities. The test set is small and synthetic; metrics are descriptive, not evidence of production accuracy."
+}

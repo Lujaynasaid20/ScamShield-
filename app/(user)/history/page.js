@@ -80,7 +80,7 @@ function History() {
                   <KindChip kind={item.kind} />
                   <VerdictBadge verdict={item.verdict} kind={item.kind} />
                   <Link href={`/history/${item.id}`} className="btn btn-outline btn-sm">View</Link>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => remove(item)} aria-label={`Delete entry from ${formatDate(item.created_at)}`}><i className="bi bi-trash" aria-hidden="true" /></button>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => remove(item)} aria-label={`Delete entry from ${formatDate(item.created_at)}`}><i className="bi bi-trash" aria-hidden="true" />Delete</button>
                 </div>
               </div>
             ))}

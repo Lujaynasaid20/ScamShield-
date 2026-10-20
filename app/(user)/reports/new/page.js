@@ -15,7 +15,7 @@ function ReportForm() {
   const caseId = params.get("case");
   const [form, setForm] = useState({
     category: "", details: "", message_text: "", url: "",
-    sender_type: params.get("sender_type") || "phone", sender_value: params.get("sender_value") || ""
+    sender_type: params.get("sender_type") || "phone", sender_value: params.get("sender_value") || "", claimed_identity: ""
   });
   const [files, setFiles] = useState([]);
   const [fileError, setFileError] = useState("");
@@ -103,7 +103,9 @@ function ReportForm() {
               <label className="visually-hidden" htmlFor="sender_value">Sender</label>
               <input id="sender_value" className="form-control flex-grow-1" style={{ minWidth: 0, flexBasis: 200 }} maxLength={200} value={form.sender_value} onChange={set("sender_value")} placeholder="Number, email or name used by the scammer" />
             </div>
-            <div className="form-hint">Adding the sender lets other users find your report with the Sender Checker (they'll see only the category, status and date).</div>
+            <label className="form-label mt-2" htmlFor="claimed_identity">Who did they claim to be? <span className="muted fw-normal">(optional)</span></label>
+            <input id="claimed_identity" className="form-control" maxLength={120} value={form.claimed_identity} onChange={set("claimed_identity")} placeholder="e.g. John from KCB Bank, Safaricom customer care" />
+            <div className="form-hint">Adding the sender lets other users find your report with the Sender Checker. They'll see only the category, status, date and the name the sender claimed to be.</div>
           </fieldset>
           <div className="field">
             <EvidenceInput files={files} onChange={(next, problem) => { setFiles(next); setFileError(problem); }} />

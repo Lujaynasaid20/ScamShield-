@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { getModule, gradeQuiz, MODULES } from "../lib/academy.js";
 import { analyzeMessage, highlightSegments } from "../lib/analyzer.js";
+import messageModel from "../lib/message-model-artifact.js";
+import { MODEL_LABELS, predictMessage } from "../lib/message-model.js";
+import { analyzePhone } from "../lib/phone.js";
 import { getRecommendations } from "../lib/recommendations.js";
-import { normalizeSender } from "../lib/sender.js";
+import { assessSender, normalizeSender } from "../lib/sender.js";
 import { base32Decode, base32Encode, generateSecret, totpCode, verifyTotp } from "../lib/totp.js";
 import { extractUrls, registrableDomain, scanUrl } from "../lib/url-scan.js";
 
@@ -35,6 +38,41 @@ test("analyzer detects Kiswahili scam wording", () => {
   const result = analyzeMessage("Hongera umeshinda zawadi! Tuma pesa ya ada ya usafirishaji haraka.");
   assert.notEqual(result.verdict, "safe");
   assert.equal(result.category, "prize");
+});
+
+test("trained text model is loaded and returns a distinct third class for uncertain language", () => {
+  assert.ok(messageModel);
+  const english = analyzeMessage("Your parcel is scheduled for delivery tomorrow. Keep your tracking reference.");
+  const swahili = analyzeMessage("Hongera! Umeshinda TSh 500,000. Tuma PIN yako ya simu ili upokee zawadi.");
+  const uncertain = analyzeMessage("The calendar invitation has changed to Thursday afternoon.");
+  for (const result of [english, swahili, uncertain]) {
+    assert.ok(result.modelAssessment);
+    assert.ok(MODEL_LABELS.includes(result.modelAssessment.label));
+    assert.equal(result.scoreBasis, "rule_indicators");
+  }
+  assert.equal(english.modelAssessment.label, "safe");
+  assert.equal(swahili.modelAssessment.label, "scam");
+  assert.equal(uncertain.modelAssessment.label, "needs_review");
+  assert.equal(uncertain.classification, "needs_review");
+  assert.equal(uncertain.score, 0);
+  assert.equal(predictMessage(messageModel, ""), null);
+  assert.equal(analyzeMessage("").verdict, "safe");
+  assert.doesNotThrow(() => analyzeMessage({ malformed: true }));
+});
+
+test("model review is surfaced as caution without claiming scam or safe", () => {
+  const result = analyzeMessage("Please check the attached notice when convenient.");
+  if (result.modelAssessment.label === "needs_review") {
+    assert.equal(result.classification, "needs_review");
+    assert.equal(result.level, "medium");
+  }
+  assert.ok(result.limitations.some(note => /small synthetic sample/.test(note)));
+});
+
+test("raw model scam prediction cannot elevate a message without rule evidence", () => {
+  const result = analyzeMessage("This sentence has unfamiliar phrasing and mentions tomorrow afternoon.");
+  assert.equal(result.score, 0);
+  assert.notEqual(result.verdict, "scam");
 });
 
 test("analyzer treats message text as data, not instructions", () => {
@@ -101,6 +139,37 @@ test("sender normalization validates emails and warns about brand names on free 
   assert.ok(email.notes.some(note => /free gmail\.com mailbox/.test(note)));
   assert.equal(normalizeSender("not-an-email@", "email").valid, false);
   assert.equal(normalizeSender("Safaricom   Care").normalized, "safaricom care");
+});
+
+test("phone analysis identifies country and line type only from the country code", () => {
+  const tz = analyzePhone("+255 754 123 456");
+  assert.equal(tz.status, "valid");
+  assert.equal(tz.e164, "+255754123456");
+  assert.equal(tz.country, "TZ");
+  assert.equal(tz.countryName, "Tanzania");
+  assert.equal(tz.lineType, "MOBILE");
+  assert.equal(analyzePhone("00255754123456").e164, "+255754123456");
+  assert.equal(analyzePhone("+44 909 879 0000").lineType, "PREMIUM_RATE");
+  assert.ok(analyzePhone("+44 909 879 0000").notes.some(note => /premium-rate/.test(note)));
+  assert.equal(analyzePhone("0754 123 456").status, "no_country_code");
+  assert.equal(analyzePhone("+255 1").status, "short_code");
+  assert.equal(analyzePhone("+255 12 345 6789").status, "invalid");
+});
+
+test("sender risk comes from reports, never from an unknown owner", () => {
+  const none = { total: 0, verified: 0, unverified: 0, rejected: 0, resolved: 0 };
+  const unknown = assessSender({ counts: none });
+  assert.equal(unknown.riskLevel, "unknown");
+  assert.deepEqual(unknown.statuses.map(status => status.id), ["no_reports", "identity_unavailable"]);
+  const business = assessSender({ counts: none, verifiedBusiness: { name: "Example Bank" } });
+  assert.equal(business.riskLevel, "low");
+  assert.deepEqual(business.statuses.map(status => status.id), ["verified_business", "no_reports"]);
+  assert.equal(assessSender({ counts: { ...none, total: 1, unverified: 1 } }).riskLevel, "medium");
+  assert.equal(assessSender({ counts: { ...none, total: 1, rejected: 1 } }).riskLevel, "unknown");
+  const spoofed = assessSender({ counts: { ...none, total: 1, verified: 1 }, verifiedBusiness: { name: "Example Bank" } });
+  assert.equal(spoofed.riskLevel, "high");
+  assert.ok(spoofed.statuses.some(status => status.id === "reported_scam"));
+  assert.ok(getRecommendations({ kind: "sender", reportCounts: none, verifiedBusiness: { name: "Example Bank" } }).steps.some(step => step.id === "spoofed"));
 });
 
 test("TOTP matches the RFC 6238 test vector and rejects replays", () => {

@@ -66,14 +66,14 @@ export function ActionCenter({ recommendations, reportHref, extra }) {
   );
 }
 
-function ResultHeader({ item, title, summary }) {
+function ResultHeader({ item, title, summary, verdictLabel, badge }) {
   return (
     <div className="card-panel">
       <div className="result-hero">
-        {item.kind !== "sender" && <RiskGauge score={item.score} level={item.level} />}
+        {item.kind !== "sender" && <RiskGauge score={item.score} level={item.level} label={item.kind === "message" ? "rule score" : "risk"} />}
         <div className="result-hero-copy">
           <div className="d-flex flex-wrap gap-2 align-items-center">
-            <VerdictBadge verdict={item.verdict} kind={item.kind} />
+            {badge || <VerdictBadge verdict={item.verdict} kind={item.kind} label={verdictLabel} />}
             {item.kind !== "sender" && <span className="kind-chip">{item.categoryLabel}</span>}
             <span className="small-print">{formatDate(item.created_at)}</span>
           </div>
@@ -91,14 +91,16 @@ export function MessageResult({ item, result }) {
   const highlights = result?.highlights || details.highlights || [];
   const confidence = result?.confidence || details.confidence;
   const limitations = result?.limitations || details.limitations || [];
+  const modelAssessment = result?.modelAssessment || details.modelAssessment;
   const recommendations = details.recommendations;
   const urlChecks = result?.urlChecks || item.url_checks || [];
   const phoneChecks = result?.phoneChecks || item.phone_checks || [];
-  const title = item.verdict === "scam" ? "This message looks like a scam" : item.verdict === "suspicious" ? "This message is suspicious" : "No common scam signs found";
+  const needsReview = modelAssessment?.label === "needs_review" && item.score < 25;
+  const title = needsReview ? "Review this message before trusting it" : item.verdict === "scam" ? "This message looks like a scam" : item.verdict === "suspicious" ? "This message is suspicious" : "No common scam signs found";
 
   return (
     <div className="stack">
-      <ResultHeader item={item} title={title} summary={result?.explanation || details.explanation} />
+      <ResultHeader item={item} title={title} summary={result?.explanation || details.explanation} verdictLabel={needsReview ? "Suspicious / Needs Review" : undefined} />
       <div className="grid grid-main-side">
         <div className="stack">
           <section className="card-panel" aria-labelledby="why-title">
@@ -115,6 +117,16 @@ export function MessageResult({ item, result }) {
               </div>
             )) : (
               <div className="signal-item"><span className="signal-icon tone-safe"><i className="bi bi-check-lg" aria-hidden="true" /></span><div><strong>No strong scam signals found</strong><p>That does not guarantee the message is safe. Verify unexpected requests independently.</p></div></div>
+            )}
+            {modelAssessment && (
+              <div className="signal-item">
+                <span className="signal-icon tone-info"><i className="bi bi-cpu" aria-hidden="true" /></span>
+                <div className="min-w-0">
+                  <strong>Experimental text model: {modelAssessment.label === "needs_review" ? "needs review" : modelAssessment.label}</strong>
+                  <p>Learned text patterns are a secondary caution signal, not proof. The risk score above counts explicit rule indicators only.</p>
+                  {modelAssessment.evidence.length > 0 && <div className="signal-matches" aria-label="Model evidence patterns">{modelAssessment.evidence.map(match => <span key={match}>{match}</span>)}</div>}
+                </div>
+              </div>
             )}
           </section>
           <section className="card-panel" aria-labelledby="message-title">
@@ -212,21 +224,81 @@ export function UrlResult({ item }) {
   );
 }
 
+const RISK = {
+  high: { label: "High", tone: "tone-danger", icon: "bi-x-octagon-fill" },
+  medium: { label: "Medium", tone: "tone-warn", icon: "bi-exclamation-triangle-fill" },
+  low: { label: "Low", tone: "tone-safe", icon: "bi-check-circle-fill" },
+  unknown: { label: "Unknown", tone: "tone-neutral", icon: "bi-question-circle-fill" }
+};
+const STATUS_TONE = { safe: "tone-safe", danger: "tone-danger", warn: "tone-warn", neutral: "tone-neutral" };
+const Unavailable = ({ children }) => <span className="muted">{children}</span>;
+
+function senderTitle(details, counts) {
+  if (counts.verified > 0) return "Reported scam number: an administrator has verified reports";
+  if (counts.total > counts.rejected) return "Other users have reported this sender";
+  if (details.identity?.status === "verified") return `Official ${details.identity.name} contact, with no reports`;
+  return "No reports found. That doesn't prove this sender is safe";
+}
+
+function CarrierValue({ carrier }) {
+  if (!carrier) return <Unavailable>Not available</Unavailable>;
+  if (carrier.status === "found" && carrier.carrier) return <>{carrier.carrier} <span className="small-print">({carrier.provider})</span></>;
+  return <Unavailable>{carrier.status === "not_configured" ? "Not available: network lookup isn't set up" : carrier.message}</Unavailable>;
+}
+
 export function SenderResult({ item, result }) {
   const details = result || item.details || {};
   const counts = details.counts || { total: 0, verified: 0, unverified: 0, rejected: 0, resolved: 0 };
   const reports = result?.reports;
-  const title = counts.verified > 0 ? "An administrator has verified reports about this sender" : counts.total > counts.rejected ? "Other users have reported this sender" : "No community reports found";
+  // Checks saved before identity lookups existed have no riskLevel.
+  const riskLevel = details.riskLevel || (counts.verified ? "high" : counts.total > counts.rejected ? "medium" : "unknown");
+  const risk = RISK[riskLevel];
+  const { phone, carrier, identity } = details;
+  const isPhone = details.type === "phone";
+  const typeLabel = isPhone ? "number" : details.type === "email" ? "email address" : "sender name";
+  const lineType = carrier?.lineTypeLabel || phone?.lineTypeLabel;
+  const summary = counts.total
+    ? `${counts.total} community report${counts.total === 1 ? "" : "s"} match this ${typeLabel}.`
+    : `No one has reported this ${typeLabel} in ScamShield yet. That is not proof the sender is trustworthy.`;
 
   return (
     <div className="stack">
-      <ResultHeader item={item} title={title} summary={counts.total ? `${counts.total} community report${counts.total === 1 ? "" : "s"} match this ${details.type}.` : `No one has reported this ${details.type} in ScamShield yet. That is not proof the sender is trustworthy.`} />
+      <ResultHeader item={item} title={senderTitle(details, counts)} summary={summary}
+        badge={<span className={`badge-status ${risk.tone}`}><i className={`bi ${risk.icon}`} aria-hidden="true" />Risk: {risk.label}</span>} />
       <div className="grid grid-main-side">
         <div className="stack">
-          <section className="card-panel">
+          {details.statuses?.length > 0 && (
+            <section className="card-panel" aria-labelledby="status-title">
+              <h3 id="status-title" className="visually-hidden">Status</h3>
+              {details.statuses.map(status => (
+                <div className="list-row" key={status.id}>
+                  <div className="list-row-main"><span><span className={`badge-status ${STATUS_TONE[status.tone]}`}><i className={`bi ${status.icon}`} aria-hidden="true" />{status.label}</span></span><small>{status.detail}</small></div>
+                </div>
+              ))}
+            </section>
+          )}
+          <section className="card-panel" aria-labelledby="sender-facts-title">
+            <h3 id="sender-facts-title">Sender details</h3>
             <dl className="dl-grid">
-              <dt>Checked</dt><dd className="mono">{item.input}</dd>
-              <dt>Type</dt><dd className="text-capitalize">{details.type}</dd>
+              <dt>{isPhone ? "Number entered" : "Checked"}</dt><dd className="mono">{item.input}</dd>
+              <dt>{details.type === "email" || isPhone ? "Verified identity" : "Identity"}</dt>
+              <dd>
+                {identity?.status === "verified" && <><strong>{identity.name}</strong> <span className="badge-status tone-safe"><i className="bi bi-patch-check" aria-hidden="true" />Verified Business</span><div className="small-print">Source: {identity.detail}</div></>}
+                {identity?.status === "registered" && <><strong>{identity.name}</strong> <span className="badge-status tone-info"><i className="bi bi-building" aria-hidden="true" />Registered business name</span><div className="small-print">{identity.source}. {identity.detail}</div></>}
+                {(!identity || identity.status === "unavailable") && <><Unavailable>Identity unavailable</Unavailable>{identity?.detail && <div className="small-print">{identity.detail}</div>}</>}
+              </dd>
+              {isPhone && <>
+                <dt>Country</dt>
+                <dd>{phone?.countryName ? `${phone.countryName} (${phone.callingCode})` : phone?.callingCode || <Unavailable>{phone?.status === "short_code" ? "Short code: no country" : "Unknown: include the country code, like +255"}</Unavailable>}</dd>
+                <dt>Carrier / network</dt>
+                <dd>{phone?.status === "valid" ? <CarrierValue carrier={carrier} /> : <Unavailable>Not available</Unavailable>}</dd>
+                {lineType && <><dt>Line type</dt><dd>{lineType}</dd></>}
+                {phone?.status === "invalid" && <><dt>Number check</dt><dd className="text-danger">Not a valid number{phone.countryName ? ` for ${phone.countryName}` : ""}</dd></>}
+              </>}
+              {!isPhone && <><dt>Type</dt><dd className="text-capitalize">{details.type}</dd></>}
+              <dt>Scam reports</dt><dd>{counts.total} <span className="small-print">({counts.verified} verified by admin)</span></dd>
+              {details.categories?.length > 0 && <><dt>Reported categories</dt><dd>{details.categories.map(entry => `${entry.category} (${entry.reports})`).join(", ")}</dd></>}
+              <dt>Risk level</dt><dd><span className={`badge-status ${risk.tone}`}><i className={`bi ${risk.icon}`} aria-hidden="true" />{risk.label}</span></dd>
               {details.firstReported && <><dt>First reported</dt><dd>{formatDate(details.firstReported)}</dd></>}
               {details.lastReported && <><dt>Last reported</dt><dd>{formatDate(details.lastReported)}</dd></>}
             </dl>
@@ -252,10 +324,27 @@ export function SenderResult({ item, result }) {
               </div>
             )}
           </section>
-          <section className="card-panel" aria-labelledby="format-title">
-            <h3 id="format-title">Format notes</h3>
-            <ul className="tick-list">{(details.notes || []).map(note => <li key={note}><i className="bi bi-info-circle text-primary" aria-hidden="true" /><span>{note}</span></li>)}</ul>
-          </section>
+          {details.claimedNames?.length > 0 && (
+            <section className="card-panel" aria-labelledby="claimed-title">
+              <div className="panel-title"><h3 id="claimed-title">Names this sender has used</h3><span className="source-tag tone-neutral"><i className="bi bi-people" aria-hidden="true" />Community</span></div>
+              {details.claimedNames.length > 1 && <Notice tone="danger" icon="bi-exclamation-octagon">This sender has claimed to be <strong>{details.claimedNames.length} different people or organizations</strong>. Real businesses don't switch identities.</Notice>}
+              <div className="mt-2">
+                {details.claimedNames.map(entry => (
+                  <div className="list-row" key={entry.name}>
+                    <div className="list-row-main"><strong>&ldquo;{entry.name}&rdquo;</strong><small>{entry.reports} report{entry.reports === 1 ? "" : "s"}</small></div>
+                    {entry.verified && <div className="list-row-meta"><StatusBadge status="verified" /></div>}
+                  </div>
+                ))}
+              </div>
+              <p className="small-print mb-0 mt-2">These are names the sender <strong>claimed</strong> to be, as told by people who reported them. They are not the real owner of the {details.type}.</p>
+            </section>
+          )}
+          {details.notes?.length > 0 && (
+            <section className="card-panel" aria-labelledby="format-title">
+              <h3 id="format-title">Notes about this sender</h3>
+              <ul className="tick-list">{details.notes.map(note => <li key={note}><i className="bi bi-info-circle text-primary" aria-hidden="true" /><span>{note}</span></li>)}</ul>
+            </section>
+          )}
         </div>
         <div className="stack">
           <ActionCenter recommendations={details.recommendations} reportHref={`/reports/new?sender_type=${details.type}&sender_value=${encodeURIComponent(item.input)}`} />

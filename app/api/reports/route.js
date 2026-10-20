@@ -1,5 +1,6 @@
 import { pool } from "@/lib/db";
 import { insertEvidence, readEvidenceFiles, readReportRequest, REPORT_CATEGORIES, REPORT_STATUSES, reportItem } from "@/lib/records";
+import { analyzePhone } from "@/lib/phone";
 import { normalizeSender } from "@/lib/sender";
 import { HttpError, json, pageResult, pagination, rateLimit, requireUser, route, text } from "@/lib/server";
 import { parseUrlInput } from "@/lib/url-scan";
@@ -35,13 +36,18 @@ export const POST = route(async request => {
     const parsed = parseUrlInput(url);
     if (parsed.error) throw new HttpError(400, `URL: ${parsed.error}`);
   }
-  let senderType = null, senderValue = null, senderNormalized = null;
+  let senderType = null, senderValue = null, senderNormalized = null, senderE164 = null;
   const rawSender = text(fields.sender_value, { max: 200, field: "Sender" });
   if (rawSender) {
     const sender = normalizeSender(rawSender, fields.sender_type);
     if (!sender.valid) throw new HttpError(400, `Sender: ${sender.error}`);
     senderType = sender.type; senderValue = sender.display; senderNormalized = sender.normalized;
+    if (sender.type === "phone") {
+      const phone = analyzePhone(sender.value);
+      if (phone.status === "valid") { senderE164 = phone.e164; senderValue = phone.formatted; }
+    }
   }
+  const claimedIdentity = text(fields.claimed_identity, { max: 120, field: "Name the sender claimed" }).replace(/\s+/g, " ") || null;
   let caseId = fields.case_id ? String(fields.case_id) : null;
   if (caseId) {
     if (!/^\d{1,18}$/.test(caseId)) throw new HttpError(400, "The linked analysis is invalid.");
@@ -60,9 +66,9 @@ export const POST = route(async request => {
   try {
     await client.query("begin");
     const inserted = await client.query(
-      `insert into scam_reports (user_id, case_id, scam_type, details, message_text, url, sender_type, sender_value, sender_normalized)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *`,
-      [profile.id, caseId, category, details, messageText, url, senderType, senderValue, senderNormalized]
+      `insert into scam_reports (user_id, case_id, scam_type, details, message_text, url, sender_type, sender_value, sender_normalized, sender_e164, claimed_identity)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *`,
+      [profile.id, caseId, category, details, messageText, url, senderType, senderValue, senderNormalized, senderE164, claimedIdentity]
     );
     const report = inserted.rows[0];
     await client.query("insert into report_updates (report_id, author_id, kind, to_status) values ($1, $2, 'created', 'submitted')", [report.id, profile.id]);

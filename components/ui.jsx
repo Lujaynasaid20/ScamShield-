@@ -107,9 +107,11 @@ const VERDICT_STYLE = {
 export const LEVEL_TO_VERDICT = { low: "safe", medium: "suspicious", high: "scam" };
 
 // For sender checks the "safe" label would overclaim, so different wording is used per kind.
-export function VerdictBadge({ verdict, kind }) {
-  const style = VERDICT_STYLE[verdict] || VERDICT_STYLE.safe;
-  let label = style.label;
+export function VerdictBadge({ verdict, kind, label: labelOverride }) {
+  let style = VERDICT_STYLE[verdict] || VERDICT_STYLE.safe;
+  // "No reports" is not a safety verdict, so it isn't shown in green.
+  if (kind === "sender" && style === VERDICT_STYLE.safe) style = { tone: "tone-neutral", icon: "bi-search" };
+  let label = labelOverride || style.label;
   if (kind === "sender") label = verdict === "scam" ? "Verified reports" : verdict === "suspicious" ? "Reported" : "No reports";
   else if (kind === "url" && verdict === "safe") label = "No warning signs";
   else if (kind === "url" && verdict === "scam") label = "High risk";

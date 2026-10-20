@@ -12,8 +12,11 @@ export const POST = route(async request => {
   const message = text(body.message, { max: 5000, required: true, field: "Message" });
 
   const result = analyzeMessage(message);
+  // The screenshot itself is never uploaded: the browser reads its text and sends only that.
+  const source = body.source === "screenshot" ? "screenshot" : "text";
+  if (source === "screenshot") result.limitations.unshift("The text was read from a screenshot. Letters, numbers and links can be misread, so check them against the original.");
   const recommendations = getRecommendations({ kind: "message", level: result.level, signals: result.signals, category: result.category });
-  const details = { highlights: result.highlights, confidence: result.confidence, limitations: result.limitations, explanation: result.explanation, recommendations };
+  const details = { source, highlights: result.highlights, confidence: result.confidence, limitations: result.limitations, explanation: result.explanation, modelAssessment: result.modelAssessment, scoreBasis: result.scoreBasis, recommendations };
 
   // A repeated submission of the same message within two minutes reuses the saved record.
   const existing = await pool.query(

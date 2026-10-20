@@ -33,6 +33,7 @@ const ADMIN_NAV = [
     { href: "/admin", icon: "bi-grid-1x2", label: "Admin dashboard" },
     { href: "/admin/reports", icon: "bi-flag", label: "Review reports" },
     { href: "/admin/cases", icon: "bi-collection", label: "Scam database" },
+    { href: "/admin/verified-senders", icon: "bi-patch-check", label: "Verified businesses" },
     { href: "/admin/users", icon: "bi-people", label: "Users" },
     { href: "/admin/insights", icon: "bi-graph-up", label: "Trends & alerts" }
   ] },

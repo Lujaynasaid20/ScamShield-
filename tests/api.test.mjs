@@ -66,6 +66,7 @@ before(async () => {
 });
 
 after(async () => {
+  await db.query("delete from verified_senders where business_name like $1", [`%${RUN}`]);
   await db.query("delete from profiles where email like $1", [`zz-test-%-${RUN}@example.test`]);
   await db.end();
 });
@@ -191,7 +192,7 @@ describe("URL scanner", () => {
 
 describe("reports, evidence, status tracking and sender checks", () => {
   let reportId, evidenceId;
-  const phone = `+2547${String(Date.now()).slice(-8)}`;
+  const phone = `+25471${String(Date.now()).slice(-7)}`;
 
   test("validates report input", async () => {
     assert.equal((await alice.post("/api/reports", { category: "Not a category", details: "x" })).status, 400);
@@ -215,11 +216,13 @@ describe("reports, evidence, status tracking and sender checks", () => {
     form.set("message_text", "Send your PIN to unlock your account");
     form.set("sender_type", "phone");
     form.set("sender_value", phone);
+    form.set("claimed_identity", "  John   from KCB Bank ");
     form.append("evidence", new Blob(["Call log: 10:02 unknown caller"], { type: "text/plain" }), "notes.txt");
     const response = await alice.post("/api/reports", form);
     assert.equal(response.status, 201, JSON.stringify(response.data));
     assert.equal(response.data.item.status, "submitted");
     assert.equal(response.data.item.evidence_count, 1);
+    assert.equal(response.data.item.claimed_identity, "John from KCB Bank");
     reportId = response.data.item.id;
     const duplicate = await alice.post("/api/reports", { category: "Bank or mobile-money fraud", details: `Caller asked for my PIN ${RUN}` });
     assert.equal(duplicate.status, 409);
@@ -255,6 +258,20 @@ describe("reports, evidence, status tracking and sender checks", () => {
     assert.equal(result.counts.total, 1);
     assert.equal(result.counts.unverified, 1);
     assert.equal(result.recommendations.severity, "medium");
+    assert.deepEqual(result.claimedNames, [{ name: "John from KCB Bank", reports: 1, verified: false }]);
+    assert.equal(result.riskLevel, "medium");
+    assert.deepEqual(result.categories, [{ category: "Bank or mobile-money fraud", reports: 1 }]);
+    assert.ok(result.statuses.some(status => status.id === "reported_unverified"));
+    assert.equal(result.identity.status, "unavailable");
+    assert.equal(result.identity.name, null);
+    // Without a country code the country is unknown, but reports still match on the last 9 digits.
+    assert.equal(result.phone.status, "no_country_code");
+    const international = (await bob.post("/api/check-sender", { value: phone, save: false })).data.result;
+    assert.equal(international.phone.country, "KE");
+    assert.equal(international.counts.total, 1);
+    // The same last 9 digits in another country is a different number.
+    const otherCountry = (await bob.post("/api/check-sender", { value: phone.replace("+254", "+255"), save: false })).data.result;
+    assert.equal(otherCountry.counts.total, 0);
     assert.equal(JSON.stringify(result).includes("Caller asked for my PIN"), false, "report description must not leak");
     assert.equal(JSON.stringify(result).includes("unlock your account"), false, "reported message must not leak");
     assert.equal(JSON.stringify(result).includes(email("alice")), false, "reporter must not leak");
@@ -276,6 +293,36 @@ describe("reports, evidence, status tracking and sender checks", () => {
     const sender = await bob.post("/api/check-sender", { value: phone, save: false });
     assert.equal(sender.data.result.counts.verified, 1);
     assert.equal(sender.data.item, null);
+  });
+
+  test("unknown senders are Unknown risk, not scams; verified directory entries show the business", async () => {
+    const official = `+25575${String(Date.now()).slice(-7)}`;
+    const before = await bob.post("/api/check-sender", { value: official });
+    assert.equal(before.status, 200);
+    assert.equal(before.data.result.riskLevel, "unknown");
+    assert.deepEqual(before.data.result.statuses.map(status => status.id), ["no_reports", "identity_unavailable"]);
+    assert.equal(before.data.result.phone.countryName, "Tanzania");
+    assert.equal(before.data.item.details.riskLevel, "unknown");
+
+    const entry = { type: "phone", value: official, business_name: `Example Bank ${RUN}`, source: "Contact page on the bank's official website" };
+    assert.equal((await bob.post("/api/admin/verified-senders", entry)).status, 403);
+    assert.equal((await admin.post("/api/admin/verified-senders", { ...entry, value: official.replace("+255", "0") })).status, 400, "country code required");
+    assert.equal((await admin.post("/api/admin/verified-senders", { ...entry, source: "" })).status, 400, "source required");
+    const added = await admin.post("/api/admin/verified-senders", entry);
+    assert.equal(added.status, 201, JSON.stringify(added.data));
+    assert.equal((await admin.post("/api/admin/verified-senders", entry)).status, 409);
+
+    const after = (await bob.post("/api/check-sender", { value: official, save: false })).data.result;
+    assert.equal(after.identity.status, "verified");
+    assert.equal(after.identity.name, entry.business_name);
+    assert.equal(after.riskLevel, "low");
+    assert.equal(after.statuses[0].id, "verified_business");
+    assert.ok(after.recommendations.steps.some(step => step.id === "spoofed"));
+    // A local number can't prove which country it belongs to, so it isn't shown as verified.
+    assert.equal((await bob.post("/api/check-sender", { value: official.replace("+255", "0"), save: false })).data.result.identity.status, "unavailable");
+
+    assert.equal((await admin.delete(`/api/admin/verified-senders/${added.data.item.id}`)).status, 204);
+    assert.equal((await bob.post("/api/check-sender", { value: official, save: false })).data.result.identity.status, "unavailable");
   });
 
   test("admins publish alerts only from verified reports", async () => {
