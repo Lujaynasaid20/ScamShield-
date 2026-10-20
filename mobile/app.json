@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "ScamShield",
+    "slug": "scamshield",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.scamshieldai.app",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0b1730",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.scamshieldai.app"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true
+        }
+      ],
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ScamShield opens your photos only when you choose a screenshot or evidence picture to add.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "scheme": "scamshield",
+    "backgroundColor": "#f3f6fb"
+  }
+}

@@ -2,3 +2,5 @@
 legacy/
 tests/
 supabase/
+# The Expo mobile app is built separately with EAS, not by Vercel.
+mobile/
